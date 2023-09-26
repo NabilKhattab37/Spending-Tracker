@@ -36,8 +36,6 @@ function Budget() {
         setCurrentBudget(initialCurrentBudget.toFixed(2));
     }, [localBudget]); // Include localBudget as a dependency
 
-
-
     const handleBudgetSubmit = (event) => {
         event.preventDefault();
 
@@ -47,10 +45,6 @@ function Budget() {
             localStorage.setItem('budget', newLocalBudget.toString()); // Store as a string
             setLocalBudget(newLocalBudget); // Update localBudget as a number
 
-            // Recalculate displayed budget based on changes in localBudget, revenue, and expenses
-            const calculatedBudget = newLocalBudget + revenue - expenses;
-            setDisplayedBudget(calculatedBudget.toFixed(2));
-
             // Update the current budget with the new budget value
             const updatedCurrentBudget = newLocalBudget - expenses + revenue;
             setCurrentBudget(updatedCurrentBudget.toFixed(2));
@@ -58,6 +52,29 @@ function Budget() {
             // Handle invalid input (e.g., non-numeric input)
             // You can display an error message or take appropriate action here
         }
+    };
+
+    // Clear Transactions Function
+    const handleClearTransactions = () => {
+        // Clear transactions in localStorage
+        localStorage.removeItem('transactions');
+
+        // Reset revenue and expenses to zero
+        setRevenue(0);
+        setExpenses(0);
+
+        // Calculate the updated current budget
+        const updatedCurrentBudget = localBudget - expenses + revenue;
+        setCurrentBudget(updatedCurrentBudget.toFixed(2));
+
+        // Update the displayed budget
+        setDisplayedBudget(updatedCurrentBudget.toFixed(2));
+    };
+
+    // Refresh Function
+    const handleRefresh = () => {
+        // Reload the page to reflect changes
+        window.location.reload();
     };
 
     const [open, setOpen] = React.useState(false);
@@ -127,13 +144,14 @@ function Budget() {
         }
     };
 
-
     return (
         <div className="bg-white dark:bg-gray-800 h-auto p-4 rounded-xl">
             <h1 className="text-2xl mb-4 text-gray-800 dark:text-white">Expense Tracker</h1>
             <h2 className="text-xl mb-4 text-gray-800 dark:text-white">Current Budget: ${currentBudget}</h2>
             <form onSubmit={handleBudgetSubmit} className="max-w-xs mx-auto">
                 <Button onClick={handleOpen} variant="outlined" className="me-4 mt-4">New Transaction</Button>
+                <Button onClick={handleClearTransactions} variant="outlined" className="me-4 mt-4">Clear Transactions</Button>
+                <Button onClick={handleRefresh} variant="outlined" className="me-4 mt-4">Refresh</Button>
                 <Modal
                     open={open}
                     onClose={handleClose}
