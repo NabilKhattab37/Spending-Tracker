@@ -1,17 +1,21 @@
-'use client'
 import React, { useEffect, useState } from 'react';
 import Budget from "@/app/(Pages)/Dashboard/Budget";
 
 function Page() {
     // State to hold the displayed budget
-    const [displayedBudget, setDisplayedBudget] = useState('');
+    const [displayedBudget, setDisplayedBudget] = useState(0); // Initialize with 0
 
     // Function to update the displayed budget
     const updateDisplayedBudget = () => {
         const savedBudget = localStorage.getItem('budget');
         if (savedBudget) {
-            setDisplayedBudget(savedBudget);
+            setDisplayedBudget(parseFloat(savedBudget)); // Parse the budget value
         }
+    };
+
+    // Function to update the budget when a transaction is recorded
+    const onTransactionRecord = (newBudget) => {
+        setDisplayedBudget(newBudget);
     };
 
     // Retrieve the budget value from localStorage on component mount
@@ -29,7 +33,10 @@ function Page() {
 
     return (
         <section>
-            <Budget />
+            <Budget
+                currentBudget={displayedBudget} // Pass displayedBudget directly
+                onTransactionRecord={onTransactionRecord}
+            />
             <div>
                 <p>Current Budget: ${displayedBudget}</p>
             </div>
