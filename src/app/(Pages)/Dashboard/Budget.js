@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import {Box, Button, Modal, Typography} from "@mui/material";
 
 function Budget() {
     // State to hold the budget value
@@ -22,6 +23,19 @@ function Budget() {
 
         setLocalBudget("")
     };
+    const [open, setOpen] = React.useState(false);
+    const handleOpen = () => setOpen(true);
+    const handleClose = () => setOpen(false);
+    const style = {
+        position: 'absolute',
+        top: '50%',
+        left: '50%',
+        transform: 'translate(-50%, -50%)',
+        width: 400,
+        border: '2px solid #000',
+        boxShadow: 24,
+        p: 4,
+    };
 
 
     return (
@@ -39,12 +53,24 @@ function Budget() {
                         className="mt-2 p-2 border rounded-md w-full text-gray-800 dark:text-white bg-gray-100 dark:bg-gray-700 focus:outline-none focus:border-blue-500 dark:focus:border-blue-400"
                     />
                 </label>
-                <button
-                    type="submit"
-                    className="mt-4 px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 dark:bg-blue-400 dark:hover:bg-blue-500 focus:outline-none focus:bg-blue-600"
+                <Button variant="outlined" type="submit" className="me-4 mt-4" >Submit</Button>
+                <Button onClick={handleOpen} variant="outlined" className="me-4 mt-4">New Transaction</Button>
+                <Modal
+                    open={open}
+                    onClose={handleClose}
+                    aria-labelledby="modal-modal-title"
+                    aria-describedby="modal-modal-description"
                 >
-                    Set Budget
-                </button>
+                    <Box sx={style} className="bg-gray-800">
+                        <Typography id="modal-modal-title" variant="h6" component="h2">
+                            Select transaction type
+                        </Typography>
+                        <div className="flex justify-center">
+                            <Button onClick={handleOpen} type="Revenue" variant="outlined" className="me-4 mt-4 border rounded-md">Revenue</Button>
+                            <Button onClick={handleOpen} variant="outlined" type="Expense" className="me-4 mt-4 border rounded-md">Expense</Button>
+                        </div>
+                    </Box>
+                </Modal>
             </form>
         </div>
     );
