@@ -1,11 +1,13 @@
 'use client'
-import react from "react";
-import RecipeReviewCard from "@/app/(Pages)/Dashboard/RecipeReviewCard";
+import React, { useState } from 'react';
+import Budget from "@/app/(Pages)/Dashboard/Budget";
 
-const page =()=> {
-    return(
-        <RecipeReviewCard></RecipeReviewCard>
-    )
+function page({ budget }) {
+    return (
+        <section>
+            <Budget /> {/* Pass the budget as a prop */}
+        </section>
+    );
 }
 
 export default page;
