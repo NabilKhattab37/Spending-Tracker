@@ -31,14 +31,11 @@ function Budget() {
         setRevenue(initialRevenue);
         setExpenses(initialExpenses);
 
-        // Update displayed budget based on changes in localBudget, revenue, and expenses
-        const calculatedBudget = parseFloat(localBudget) + initialRevenue - initialExpenses;
-        setDisplayedBudget(calculatedBudget.toFixed(2));
-        setCurrentBudget(calculatedBudget.toFixed(2)); // Set the initial current budget
-    }, []);
-    const handleBudgetChange = (event) => {
-        setLocalBudget(event.target.value);
-    };
+        // Calculate the initial current budget based on the budget value
+        const initialCurrentBudget = parseFloat(localBudget) - initialExpenses + initialRevenue;
+        setCurrentBudget(initialCurrentBudget.toFixed(2));
+    }, [localBudget]); // Include localBudget as a dependency
+
 
 
     const handleBudgetSubmit = (event) => {
@@ -49,11 +46,14 @@ function Budget() {
         if (!isNaN(newLocalBudget)) {
             localStorage.setItem('budget', newLocalBudget.toString()); // Store as a string
             setLocalBudget(newLocalBudget); // Update localBudget as a number
-            setCurrentBudget(newLocalBudget); // Update currentBudget
 
             // Recalculate displayed budget based on changes in localBudget, revenue, and expenses
             const calculatedBudget = newLocalBudget + revenue - expenses;
             setDisplayedBudget(calculatedBudget.toFixed(2));
+
+            // Update the current budget with the new budget value
+            const updatedCurrentBudget = newLocalBudget - expenses + revenue;
+            setCurrentBudget(updatedCurrentBudget.toFixed(2));
         } else {
             // Handle invalid input (e.g., non-numeric input)
             // You can display an error message or take appropriate action here
@@ -112,8 +112,12 @@ function Budget() {
             setRecordingTransaction(false); // Clear the recording state
             setTransactionType('');
 
+            // Update the displayed budget immediately
             setDisplayedBudget(updatedBudget.toFixed(2));
-            setCurrentBudget(updatedBudget.toFixed(2)); // Update the current budget
+
+            // Update the current budget with the new budget value
+            const updatedCurrentBudget = updatedBudget - expenses + revenue;
+            setCurrentBudget(updatedCurrentBudget.toFixed(2));
 
             // Dispatch an event to notify other components of the budget update
             window.dispatchEvent(new Event('budgetUpdated'));
@@ -123,23 +127,12 @@ function Budget() {
         }
     };
 
+
     return (
         <div className="bg-white dark:bg-gray-800 h-auto p-4 rounded-xl">
             <h1 className="text-2xl mb-4 text-gray-800 dark:text-white">Expense Tracker</h1>
             <h2 className="text-xl mb-4 text-gray-800 dark:text-white">Current Budget: ${currentBudget}</h2>
             <form onSubmit={handleBudgetSubmit} className="max-w-xs mx-auto">
-                <label className="block text-gray-700 dark:text-gray-300">
-                    Enter Your Budget:
-                    <input
-                        type="number"
-                        value={localBudget}
-                        onChange={handleBudgetChange}
-                        placeholder="Enter your budget"
-                        required
-                        className="mt-2 p-2 border rounded-md w-full text-gray-800 dark:text-white bg-gray-100 dark:bg-gray-700 focus:outline-none focus:border-blue-500 dark:focus:border-blue-400"
-                    />
-                </label>
-                <Button variant="outlined" type="submit" className="me-4 mt-4" >Submit</Button>
                 <Button onClick={handleOpen} variant="outlined" className="me-4 mt-4">New Transaction</Button>
                 <Modal
                     open={open}
