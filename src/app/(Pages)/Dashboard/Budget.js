@@ -17,29 +17,16 @@ function Budget() {
         // Save the budget value to localStorage
         localStorage.setItem('budget', localBudget);
 
-        // Update the displayed budget with the localBudget value
-        setDisplayedBudget(localBudget);
+        // Trigger a storage event to notify other components
+        window.dispatchEvent(new Event('budgetUpdated'));
 
-        // Clear the input field
-        setLocalBudget('');
+        setLocalBudget("")
     };
 
-    // Retrieve the budget value from localStorage (if it exists) on component mount
-    useEffect(() => {
-        const savedBudget = localStorage.getItem('budget');
-        if (savedBudget) {
-            // Set both localBudget and displayedBudget with the saved value
-            setLocalBudget(savedBudget);
-            setDisplayedBudget(savedBudget);
-        }
-    }, []);
 
     return (
         <div className="bg-white dark:bg-gray-800 h-auto p-4 rounded-xl">
             <h1 className="text-2xl mb-4 text-gray-800 dark:text-white">Expense Tracker</h1>
-            <div>
-                <p>Current Budget: ${displayedBudget}</p> {/* Display the displayedBudget value */}
-            </div>
             <form onSubmit={handleBudgetSubmit} className="max-w-xs mx-auto">
                 <label className="block text-gray-700 dark:text-gray-300">
                     Enter Your Budget:
