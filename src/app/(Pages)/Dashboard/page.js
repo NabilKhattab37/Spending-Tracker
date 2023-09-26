@@ -1,10 +1,10 @@
+'use client'
 import react from "react";
+import RecipeReviewCard from "@/app/(Pages)/Dashboard/RecipeReviewCard";
 
 const page =()=> {
     return(
-        <h1>
-            Helloooo
-        </h1>
+        <RecipeReviewCard></RecipeReviewCard>
     )
 }
 
