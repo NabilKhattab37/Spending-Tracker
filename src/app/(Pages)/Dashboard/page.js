@@ -29,7 +29,7 @@ function Page() {
 
     return (
         <section>
-            <Budget /> {/* Pass the budget as a prop */}
+            <Budget />
             <div>
                 <p>Current Budget: ${displayedBudget}</p>
             </div>
