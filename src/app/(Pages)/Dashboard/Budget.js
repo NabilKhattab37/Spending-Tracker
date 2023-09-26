@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Box, Button, Modal, TextField, Typography } from "@mui/material";
 
-function Budget({ currentBudget, onTransactionRecord }) {
+function Budget() {
     const [localBudget, setLocalBudget] = useState(() => parseFloat(localStorage.getItem('budget')) || 0);
-    const [displayedBudget, setDisplayedBudget] = useState(() => currentBudget || localBudget);
+    const [displayedBudget, setDisplayedBudget] = useState(() => localBudget);
+    const [currentBudget, setCurrentBudget] = useState(() => localBudget);
 
     const [isRecordingTransaction, setRecordingTransaction] = useState(false);
     const [transactionType, setTransactionType] = useState('');
@@ -29,23 +30,34 @@ function Budget({ currentBudget, onTransactionRecord }) {
 
         setRevenue(initialRevenue);
         setExpenses(initialExpenses);
-    }, []);
 
+        // Update displayed budget based on changes in localBudget, revenue, and expenses
+        const calculatedBudget = parseFloat(localBudget) + initialRevenue - initialExpenses;
+        setDisplayedBudget(calculatedBudget.toFixed(2));
+        setCurrentBudget(calculatedBudget.toFixed(2)); // Set the initial current budget
+    }, []);
     const handleBudgetChange = (event) => {
         setLocalBudget(event.target.value);
     };
 
+
     const handleBudgetSubmit = (event) => {
         event.preventDefault();
 
-        localStorage.setItem('budget', localBudget);
+        // Parse the input value as a float and set it as the new localBudget
+        const newLocalBudget = parseFloat(localBudget);
+        if (!isNaN(newLocalBudget)) {
+            localStorage.setItem('budget', newLocalBudget.toString()); // Store as a string
+            setLocalBudget(newLocalBudget); // Update localBudget as a number
+            setCurrentBudget(newLocalBudget); // Update currentBudget
 
-        window.dispatchEvent(new Event('budgetUpdated'));
-
-        const calculatedBudget = parseFloat(localBudget) + revenue - expenses;
-        setDisplayedBudget(calculatedBudget.toFixed(2));
-
-        setLocalBudget("");
+            // Recalculate displayed budget based on changes in localBudget, revenue, and expenses
+            const calculatedBudget = newLocalBudget + revenue - expenses;
+            setDisplayedBudget(calculatedBudget.toFixed(2));
+        } else {
+            // Handle invalid input (e.g., non-numeric input)
+            // You can display an error message or take appropriate action here
+        }
     };
 
     const [open, setOpen] = React.useState(false);
@@ -68,34 +80,53 @@ function Budget({ currentBudget, onTransactionRecord }) {
     };
 
     const handleRecordTransaction = (details) => {
-        let updatedBudget = parseFloat(displayedBudget);
+        // Parse the value as a float
+        const floatValue = parseFloat(details.value);
 
-        if (transactionType === 'Revenue') {
-            const addedRevenue = parseFloat(details.value);
-            setRevenue(revenue + addedRevenue);
-            updatedBudget += addedRevenue;
-        } else if (transactionType === 'Expense') {
-            const addedExpense = parseFloat(details.value);
-            setExpenses(expenses + addedExpense);
-            updatedBudget -= addedExpense;
+        if (!isNaN(floatValue)) {
+            let updatedBudget = parseFloat(displayedBudget);
+
+            if (transactionType === 'Revenue') {
+                const addedRevenue = floatValue;
+                setRevenue(revenue + addedRevenue);
+                updatedBudget += addedRevenue;
+            } else if (transactionType === 'Expense') {
+                const addedExpense = floatValue;
+                setExpenses(expenses + addedExpense);
+                updatedBudget -= addedExpense;
+            }
+
+            // Store the transaction in localStorage
+            const transactions = JSON.parse(localStorage.getItem('transactions')) || [];
+            transactions.push({ ...details, type: transactionType });
+            localStorage.setItem('transactions', JSON.stringify(transactions));
+
+            // Clear the transaction details
+            setTransactionDetails({
+                value: '',
+                category: '',
+                date: '', // Reset date to null
+                name: '',
+            });
+
+            setRecordingTransaction(false); // Clear the recording state
+            setTransactionType('');
+
+            setDisplayedBudget(updatedBudget.toFixed(2));
+            setCurrentBudget(updatedBudget.toFixed(2)); // Update the current budget
+
+            // Dispatch an event to notify other components of the budget update
+            window.dispatchEvent(new Event('budgetUpdated'));
+        } else {
+            // Handle invalid input (e.g., non-numeric input for transaction value)
+            // You can display an error message or take appropriate action here
         }
-
-        // Store the transaction in localStorage
-        const transactions = JSON.parse(localStorage.getItem('transactions')) || [];
-        transactions.push({ ...details, type: transactionType });
-        localStorage.setItem('transactions', JSON.stringify(transactions));
-
-        setRecordingTransaction(false);
-        setTransactionType('');
-
-        setDisplayedBudget(updatedBudget.toFixed(2));
-
-        onTransactionRecord(updatedBudget.toFixed(2));
     };
 
     return (
         <div className="bg-white dark:bg-gray-800 h-auto p-4 rounded-xl">
             <h1 className="text-2xl mb-4 text-gray-800 dark:text-white">Expense Tracker</h1>
+            <h2 className="text-xl mb-4 text-gray-800 dark:text-white">Current Budget: ${currentBudget}</h2>
             <form onSubmit={handleBudgetSubmit} className="max-w-xs mx-auto">
                 <label className="block text-gray-700 dark:text-gray-300">
                     Enter Your Budget:
