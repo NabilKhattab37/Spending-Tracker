@@ -54,15 +54,25 @@ function Budget() {
     };
 
     const handleClearTransactions = () => {
+        // Clear transactions in localStorage
         localStorage.removeItem('transactions');
+
+        // Reset revenue and expenses to zero
         setRevenue(0);
         setExpenses(0);
-        setLocalBudget(currentBudget); // Reset localBudget to the current budget
+
+        // Reset localBudget to zero
+        setLocalBudget(0);
+
+        // Calculate the updated current budget
+        const updatedCurrentBudget = 0;
+        setCurrentBudget(updatedCurrentBudget.toFixed(2));
+
+        // Update the displayed budget
+        setDisplayedBudget(updatedCurrentBudget.toFixed(2));
     };
 
-    const handleRefresh = () => {
-        window.location.reload();
-    };
+
 
     const [open, setOpen] = React.useState(false);
     const handleOpen = () => setOpen(true);
@@ -135,10 +145,9 @@ function Budget() {
         <div className="bg-white dark:bg-gray-800 h-auto p-4 rounded-xl">
             <h1 className="text-2xl mb-4 text-gray-800 dark:text-white">Expense Tracker</h1>
             <h2 className="text-xl mb-4 text-gray-800 dark:text-white">Current Budget: ${currentBudget}</h2>
-            <form onSubmit={handleBudgetSubmit} className="max-w-xs mx-auto">
+            <form onSubmit={handleBudgetSubmit} className="max-w-xs mx-auto flex space-x-4">
                 <Button onClick={handleOpen} variant="outlined" className="me-4 mt-4">New Transaction</Button>
                 <Button onClick={handleClearTransactions} variant="outlined" className="me-4 mt-4">Clear Transactions</Button>
-                <Button onClick={handleRefresh} variant="outlined" className="me-4 mt-4">Refresh</Button>
                 <Modal
                     open={open}
                     onClose={handleClose}
