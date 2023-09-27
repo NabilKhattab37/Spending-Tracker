@@ -5,7 +5,7 @@ function Page() {
 
     return (
         <section>
-            <Budget/>
+            <Budget />
         </section>
     );
 }

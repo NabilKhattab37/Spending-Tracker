@@ -1,6 +1,32 @@
 import React, { useState, useEffect } from 'react';
 import { Box, Button, Modal, TextField, Typography } from "@mui/material";
 
+function TransactionHistory({ transactions, onDeleteTransaction }) {
+    return (
+        <div className="mt-4">
+            <Typography variant="h6">Transaction History</Typography>
+            <ul>
+                {transactions.map((transaction, index) => (
+                    <li key={index} className="mb-2">
+                        <span>{transaction.name}</span>
+                        <span className={transaction.type === 'Revenue' ? 'text-green-500' : 'text-red-500'}>
+              {transaction.type === 'Revenue' ? '+' : '-'} ${transaction.value}
+            </span>
+                        <Button
+                            variant="outlined"
+                            size="small"
+                            onClick={() => onDeleteTransaction(index)}
+                            className="ml-2 border rounded-md"
+                        >
+                            Delete
+                        </Button>
+                    </li>
+                ))}
+            </ul>
+        </div>
+    );
+}
+
 function Budget() {
     const isClient = typeof window !== 'undefined';
 
@@ -22,9 +48,12 @@ function Budget() {
     const [revenue, setRevenue] = useState(0);
     const [expenses, setExpenses] = useState(0);
 
+    const [transactions, setTransactions] = useState(
+        JSON.parse(localStorage.getItem('transactions')) || []
+    );
+
     useEffect(() => {
         // Calculate initial revenue and expenses from stored transactions in localStorage
-        const transactions = JSON.parse(localStorage.getItem('transactions')) || [];
         const initialRevenue = transactions
             .filter(transaction => transaction.type === 'Revenue')
             .reduce((total, transaction) => total + parseFloat(transaction.value), 0);
@@ -38,7 +67,7 @@ function Budget() {
         // Calculate the initial current budget based on the budget value
         const initialCurrentBudget = parseFloat(localBudget) - initialExpenses + initialRevenue;
         setCurrentBudget(initialCurrentBudget.toFixed(2));
-    }, [localBudget]);
+    }, [localBudget, transactions]);
 
     useEffect(() => {
         // Update the current budget whenever revenue or expenses change
@@ -76,22 +105,6 @@ function Budget() {
         setDisplayedBudget(updatedCurrentBudget.toFixed(2));
     };
 
-
-
-    const [open, setOpen] = React.useState(false);
-    const handleOpen = () => setOpen(true);
-    const handleClose = () => setOpen(false);
-    const style = {
-        position: 'absolute',
-        top: '50%',
-        left: '50%',
-        transform: 'translate(-50%, -50%)',
-        width: 400,
-        border: '2px solid #000',
-        boxShadow: 24,
-        p: 4,
-    };
-
     const handleTransactionRecording = (type) => {
         setTransactionType(type);
         setRecordingTransaction(true);
@@ -115,9 +128,8 @@ function Budget() {
             }
 
             // Store the transaction in localStorage
-            const transactions = JSON.parse(localStorage.getItem('transactions')) || [];
-            transactions.push({ ...details, type: transactionType });
-            localStorage.setItem('transactions', JSON.stringify(transactions));
+            const updatedTransactions = [...transactions, { ...details, type: transactionType }];
+            localStorage.setItem('transactions', JSON.stringify(updatedTransactions));
 
             // Clear the transaction details
             setTransactionDetails({
@@ -145,40 +157,85 @@ function Budget() {
         }
     };
 
+    const handleDeleteTransaction = (indexToDelete) => {
+        // Remove the transaction at the specified index
+        const updatedTransactions = [...transactions];
+        updatedTransactions.splice(indexToDelete, 1);
+        setTransactions(updatedTransactions);
+
+        // Update revenue and expenses based on the updated transactions
+        const updatedRevenue = updatedTransactions
+            .filter((transaction) => transaction.type === 'Revenue')
+            .reduce((total, transaction) => total + parseFloat(transaction.value), 0);
+
+        const updatedExpenses = updatedTransactions
+            .filter((transaction) => transaction.type === 'Expense')
+            .reduce((total, transaction) => total + parseFloat(transaction.value), 0);
+
+        setRevenue(updatedRevenue);
+        setExpenses(updatedExpenses);
+
+        // Update the current budget with the new values
+        const updatedCurrentBudget = parseFloat(localBudget) - updatedExpenses + updatedRevenue;
+        setCurrentBudget(updatedCurrentBudget.toFixed(2));
+
+        // Update local storage with the updated transactions
+        localStorage.setItem('transactions', JSON.stringify(updatedTransactions));
+    };
+
+    const [open, setOpen] = React.useState(false);
+    const handleOpen = () => setOpen(true);
+    const handleClose = () => setOpen(false);
+    const style = {
+        position: 'absolute',
+        top: '50%',
+        left: '50%',
+        transform: 'translate(-50%, -50%)',
+        width: 400,
+        border: '2px solid #000',
+        boxShadow: 24,
+        p: 4,
+    };
+
     return (
-        <div className="bg-white dark:bg-gray-800 h-auto p-4 rounded-xl">
-            <h1 className="text-2xl mb-4 text-gray-800 dark:text-white">Expense Tracker</h1>
-            <h2 className="text-xl mb-4 text-gray-800 dark:text-white">Current Budget: ${currentBudget}</h2>
-            <form onSubmit={handleBudgetSubmit} className="max-w-xs mx-auto flex space-x-4">
-                <Button onClick={handleOpen} variant="outlined" className="me-4 mt-4">New Transaction</Button>
-                <Button onClick={handleClearTransactions} variant="outlined" className="me-4 mt-4">Clear Transactions</Button>
-                <Modal
-                    open={open}
-                    onClose={handleClose}
-                    aria-labelledby="modal-modal-title"
-                    aria-describedby="modal-modal-description"
-                >
-                    <Box sx={style} className="bg-gray-800">
-                        <Typography id="modal-modal-title" variant="h6" component="h2">
-                            Select transaction type
-                        </Typography>
-                        <div className="flex justify-center">
-                            <Button onClick={() => handleTransactionRecording('Revenue')} variant="outlined" className="me-4 mt-4 border rounded-md">Revenue</Button>
-                            <Button onClick={() => handleTransactionRecording('Expense')} variant="outlined" className="me-4 mt-4 border rounded-md">Expense</Button>
-                        </div>
-                    </Box>
-                </Modal>
-                {isRecordingTransaction && (
-                    <TransactionRecording
-                        type={transactionType}
-                        onClose={() => {
-                            setRecordingTransaction(false);
-                            setTransactionType('');
-                        }}
-                        onRecord={handleRecordTransaction}
-                    />
-                )}
-            </form>
+        <div>
+            <div className="bg-white dark:bg-gray-800 h-auto p-4 rounded-xl">
+                <h1 className="text-2xl mb-4 text-gray-800 dark:text-white">Expense Tracker</h1>
+                <h2 className="text-xl mb-4 text-gray-800 dark:text-white">Current Budget: ${currentBudget}</h2>
+                <form onSubmit={handleBudgetSubmit} className="max-w-xs mx-auto flex space-x-4">
+                    <Button onClick={handleOpen} variant="outlined" className="me-4 mt-4">New Transaction</Button>
+                    <Button onClick={handleClearTransactions} variant="outlined" className="me-4 mt-4">Clear Transactions</Button>
+                    <Modal
+                        open={open}
+                        onClose={handleClose}
+                        aria-labelledby="modal-modal-title"
+                        aria-describedby="modal-modal-description"
+                    >
+                        <Box sx={style} className="bg-gray-800">
+                            <Typography id="modal-modal-title" variant="h6" component="h2">
+                                Select transaction type
+                            </Typography>
+                            <div className="flex justify-center">
+                                <Button onClick={() => handleTransactionRecording('Revenue')} variant="outlined" className="me-4 mt-4 border rounded-md">Revenue</Button>
+                                <Button onClick={() => handleTransactionRecording('Expense')} variant="outlined" className="me-4 mt-4 border rounded-md">Expense</Button>
+                            </div>
+                        </Box>
+                    </Modal>
+                    {isRecordingTransaction && (
+                        <TransactionRecording
+                            type={transactionType}
+                            onClose={() => {
+                                setRecordingTransaction(false);
+                                setTransactionType('');
+                            }}
+                            onRecord={handleRecordTransaction}
+                        />
+                    )}
+                </form>
+            </div>
+            <section>
+                <TransactionHistory transactions={transactions} onDeleteTransaction={handleDeleteTransaction} />
+            </section>
         </div>
     );
 }
