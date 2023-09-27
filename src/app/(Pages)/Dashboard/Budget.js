@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import {Box, Button, IconButton, Modal, TextField, Typography} from "@mui/material";
 import CloseIcon from '@mui/icons-material/Close';
+import DeleteIcon from '@mui/icons-material/Delete';
 
 function TransactionHistory({ transactions, onDeleteTransaction }) {
     const reversedTransactions = [...transactions].reverse();
@@ -220,7 +221,7 @@ function Budget() {
                 <h2 className="text-xl mb-4 text-gray-800 dark:text-white">Current Balance: ${currentBudget}</h2>
                 <form onSubmit={handleBudgetSubmit} className="max-w-xs mx-auto flex space-x-4">
                     <Button onClick={handleOpen} variant="outlined" className="me-4 mt-4">New Transaction</Button>
-                    <Button onClick={handleClearTransactions} variant="outlined" className="me-4 mt-4">Clear Transactions</Button>
+                    <Button onClick={handleClearTransactions} startIcon={<DeleteIcon className="text-red-500"/>} variant="outlined" className="mt-4"><span>Clear Transactions</span></Button>
                     <Modal
                         open={open}
                         onClose={handleClose}
