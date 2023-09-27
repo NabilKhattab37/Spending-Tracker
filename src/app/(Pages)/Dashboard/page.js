@@ -4,9 +4,10 @@ import Budget from "@/app/(Pages)/Dashboard/Budget";
 function Page() {
 
     return (
-        <section>
+        <div>
             <Budget />
-        </section>
+        </div>
+
     );
 }
 

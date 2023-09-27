@@ -42,7 +42,7 @@ function TransactionHistory({ transactions, onDeleteTransaction }) {
     return (
         <div className="mt-4">
             <div className="flex justify-between mb-4">
-                <Typography variant="h6">Transaction History</Typography>
+                <Typography className=" place-self-center" variant="h6">Transaction History</Typography>
                 <div className="flex me-4 space-x-4 ms-2">
                     <Select
                         value={sortOrder}
@@ -53,7 +53,7 @@ function TransactionHistory({ transactions, onDeleteTransaction }) {
                         <MenuItem value="desc">Newest</MenuItem>
                         <MenuItem value="asc">Oldest</MenuItem>
                     </Select>
-                    <FormControl fullWidth>
+                    <FormControl sx={{ m: 1, minWidth: 150 }}>
                         <InputLabel id="categoryid">Category</InputLabel>
                         <Select
                             value={selectedCategory}
@@ -74,6 +74,7 @@ function TransactionHistory({ transactions, onDeleteTransaction }) {
                     </FormControl>
                     <Button
                         variant="outlined"
+                        className="w-[10vw]"
                         style={{
                             borderColor: showLast30Days ? 'primary' : 'default',
                             color: showLast30Days ? 'primary' : 'default',
@@ -84,7 +85,6 @@ function TransactionHistory({ transactions, onDeleteTransaction }) {
                     </Button>
                 </div>
             </div>
-
             <ul className="list-disc mt-4">
                 {sortedTransactions.map((transaction, index) => (
                     <li
