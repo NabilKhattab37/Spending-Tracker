@@ -229,10 +229,10 @@ function Budget() {
                         aria-describedby="modal-modal-description"
                     >
                         <Box sx={style} className="bg-gray-800">
-                            <Typography id="modal-modal-title" variant="h6" component="h2">
+                            <Typography id="modal-modal-title" variant="h6" component="h2" className="text-center">
                                 Select transaction type
                             </Typography>
-                            <div className="flex justify-center">
+                            <div className="flex space-x-3 mt-4 justify-center">
                                 <Button onClick={() => handleTransactionRecording('Revenue')} variant="outlined" className="me-4 mt-4 border rounded-md">Revenue</Button>
                                 <Button onClick={() => handleTransactionRecording('Expense')} variant="outlined" className="me-4 mt-4 border rounded-md">Expense</Button>
                             </div>
