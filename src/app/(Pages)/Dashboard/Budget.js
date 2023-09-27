@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Button, Modal, TextField, Typography } from "@mui/material";
+import {Box, Button, IconButton, Modal, TextField, Typography} from "@mui/material";
+import CloseIcon from '@mui/icons-material/Close';
 
 function TransactionHistory({ transactions, onDeleteTransaction }) {
     const reversedTransactions = [...transactions].reverse();
@@ -209,8 +210,6 @@ function Budget() {
         left: '50%',
         transform: 'translate(-50%, -50%)',
         width: 400,
-        border: '2px solid #000',
-        boxShadow: 24,
         p: 4,
     };
 
@@ -228,7 +227,7 @@ function Budget() {
                         aria-labelledby="modal-modal-title"
                         aria-describedby="modal-modal-description"
                     >
-                        <Box sx={style} className="bg-gray-800">
+                        <Box sx={style} className="bg-gray-800 rounded-2xl">
                             <Typography id="modal-modal-title" variant="h6" component="h2" className="text-center">
                                 Select transaction type
                             </Typography>
@@ -282,6 +281,14 @@ function TransactionRecording({ type, onClose, onRecord }) {
 
         onClose();
     };
+    const style = {
+        position: 'absolute',
+        top: '50%',
+        left: '50%',
+        transform: 'translate(-50%, -50%)',
+        width: 400,
+        p: 4,
+    };
 
     return (
         <Modal
@@ -290,8 +297,20 @@ function TransactionRecording({ type, onClose, onRecord }) {
             aria-labelledby="modal-modal-title"
             aria-describedby="modal-modal-description"
         >
-            <Box className="fixed inset-0 flex items-center justify-center z-50">
-                <div className="bg-white dark:bg-gray-800 w-96 p-6 rounded-xl">
+            <Box sx={style} className="fixed items-center justify-center object-center z-50">
+                <div className="bg-white dark:bg-gray-800 w-96 p-4 rounded-xl ">
+                    <div className="relative " dir="rtl">
+                        <IconButton
+                            edge="end"
+                            color="inherit"
+                            onClick={onClose} // Close the modal when the button is clicked
+                            aria-label="close"
+                            className="absolute top-0 right-0"
+
+                        >
+                            <CloseIcon />
+                        </IconButton>
+                    </div>
                     <Typography id="modal-modal-title" variant="h6" component="h2">
                         Record {type} Transaction
                     </Typography>
