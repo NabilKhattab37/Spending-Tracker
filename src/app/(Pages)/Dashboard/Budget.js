@@ -8,7 +8,9 @@ function TransactionHistory({ transactions, onDeleteTransaction }) {
             <ul>
                 {transactions.map((transaction, index) => (
                     <li key={index} className="mb-2">
-                        <span>{transaction.name}</span>
+                        <span>Name: {transaction.name}</span>
+                        <span>Category: {transaction.category}</span>
+                        <span>Date: {transaction.date}</span>
                         <span className={transaction.type === 'Revenue' ? 'text-green-500' : 'text-red-500'}>
               {transaction.type === 'Revenue' ? '+' : '-'} ${transaction.value}
             </span>
@@ -26,6 +28,7 @@ function TransactionHistory({ transactions, onDeleteTransaction }) {
         </div>
     );
 }
+
 
 function Budget() {
     const isClient = typeof window !== 'undefined';
@@ -108,6 +111,7 @@ function Budget() {
     const handleTransactionRecording = (type) => {
         setTransactionType(type);
         setRecordingTransaction(true);
+
     };
 
     const handleRecordTransaction = (details) => {
@@ -140,6 +144,7 @@ function Budget() {
             });
 
             setRecordingTransaction(false); // Clear the recording state
+            setTransactions(updatedTransactions);
             setTransactionType('');
 
             // Update the displayed budget immediately
