@@ -1,3 +1,4 @@
+'use client'
 import React, { useState, useEffect } from 'react';
 import {Box, Button, IconButton, InputLabel, Modal, TextField, Typography} from "@mui/material";
 import CloseIcon from '@mui/icons-material/Close';
@@ -151,10 +152,17 @@ function Budget() {
     const [revenue, setRevenue] = useState(0);
     const [expenses, setExpenses] = useState(0);
 
-    const [transactions, setTransactions] = useState(
-        JSON.parse(localStorage.getItem('transactions')) || []
-    );
+    const [transactions, setTransactions] = useState([]);
 
+    useEffect(() => {
+        // Check if localStorage is available (in a browser context)
+        if (typeof window !== 'undefined') {
+            // Retrieve transaction data from localStorage
+            const localStorageData = localStorage.getItem('transactions');
+            const parsedData = localStorageData ? JSON.parse(localStorageData) : [];
+            setTransactions(parsedData);
+        }
+    }, []); // Run this effect once when the component mounts
     useEffect(() => {
         // Calculate initial revenue and expenses from stored transactions in localStorage
         const initialRevenue = transactions
