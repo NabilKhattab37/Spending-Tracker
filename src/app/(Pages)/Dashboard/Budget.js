@@ -2,33 +2,38 @@ import React, { useState, useEffect } from 'react';
 import { Box, Button, Modal, TextField, Typography } from "@mui/material";
 
 function TransactionHistory({ transactions, onDeleteTransaction }) {
+    const reversedTransactions = [...transactions].reverse();
+
     return (
         <div className="mt-4">
-            <Typography variant="h6">Transaction History</Typography>
-            <ul>
-                {transactions.map((transaction, index) => (
-                    <li key={index} className="mb-2">
-                        <span>Name: {transaction.name}</span>
-                        <span>Category: {transaction.category}</span>
-                        <span>Date: {transaction.date}</span>
-                        <span className={transaction.type === 'Revenue' ? 'text-green-500' : 'text-red-500'}>
-              {transaction.type === 'Revenue' ? '+' : '-'} ${transaction.value}
-            </span>
-                        <Button
-                            variant="outlined"
-                            size="small"
-                            onClick={() => onDeleteTransaction(index)}
-                            className="ml-2 border rounded-md"
-                        >
-                            Delete
-                        </Button>
+            <Typography variant="h6" className="mb-2">Transaction History</Typography>
+            <ul className="list-disc pl-4">
+                {reversedTransactions.map((transaction, index) => (
+                    <li key={index} className="mb-4 p-4 border rounded-lg flex justify-between items-center">
+                        <div>
+                            <p className="text-lg font-semibold">Name: {transaction.name}</p>
+                            <p className="text-gray-500">Category: {transaction.category}</p>
+                            <p className="text-gray-500">Date: {transaction.date}</p>
+                        </div>
+                        <div>
+                            <p className={`text-xl ${transaction.type === 'Revenue' ? 'text-green-500' : 'text-red-500'}`}>
+                                {transaction.type === 'Revenue' ? `+ $${transaction.value}` : `- $${transaction.value}`}
+                            </p>
+                            <Button
+                                variant="outlined"
+                                size="small"
+                                onClick={() => onDeleteTransaction(index)}
+                                className="ml-2 border rounded-md"
+                            >
+                                Delete
+                            </Button>
+                        </div>
                     </li>
                 ))}
             </ul>
         </div>
     );
 }
-
 
 function Budget() {
     const isClient = typeof window !== 'undefined';
@@ -106,7 +111,14 @@ function Budget() {
 
         // Update the displayed budget
         setDisplayedBudget(updatedCurrentBudget.toFixed(2));
+
+        // Clear the transaction history by setting an empty array
+        setTransactions([]);
+
+        // Close the modal if it's open
+        setOpen(false);
     };
+
 
     const handleTransactionRecording = (type) => {
         setTransactionType(type);
