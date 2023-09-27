@@ -6,8 +6,8 @@ function TransactionHistory({ transactions, onDeleteTransaction }) {
 
     return (
         <div className="mt-4">
-            <Typography variant="h6" className="mb-2">Transaction History</Typography>
-            <ul className="list-disc pl-4">
+            <Typography variant="h6" className="mb-4">Transaction History</Typography>
+            <ul className="list-disc mt-4 pl-4">
                 {reversedTransactions.map((transaction, index) => (
                     <li key={index} className="mb-4 p-4 border rounded-lg flex justify-between items-center">
                         <div>
