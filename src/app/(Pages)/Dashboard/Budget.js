@@ -2,19 +2,91 @@ import React, { useState, useEffect } from 'react';
 import {Box, Button, IconButton, Modal, TextField, Typography} from "@mui/material";
 import CloseIcon from '@mui/icons-material/Close';
 import DeleteIcon from '@mui/icons-material/Delete';
+import Select from '@mui/material/Select';
+import MenuItem from '@mui/material/MenuItem';
 
 function TransactionHistory({ transactions, onDeleteTransaction }) {
+    const [sortOrder, setSortOrder] = useState('desc'); // Default to descending order
+    const [selectedCategory, setSelectedCategory] = useState(''); // Default to showing all categories
+    const [showLast30Days, setShowLast30Days] = useState(false); // Default to false
+
+    // Filter transactions based on selectedCategory and showLast30Days
+    const filteredTransactions = transactions.filter((transaction) => {
+        const dateA = new Date(transaction.date);
+        const dateB = new Date();
+
+        // Check if the transaction's category matches the selectedCategory
+        const categoryMatch = selectedCategory === '' || transaction.category === selectedCategory;
+
+        // Check if the transaction is within the last 30 days
+        const last30Days = showLast30Days ? dateB - dateA <= 30 * 24 * 60 * 60 * 1000 : true;
+
+        return categoryMatch && last30Days;
+    });
+
+    // Sort filtered transactions based on the chosen sort order
+    const sortedTransactions = [...filteredTransactions].sort((a, b) => {
+        const dateA = new Date(a.date);
+        const dateB = new Date(b.date);
+
+        if (sortOrder === 'asc') {
+            return dateA - dateB; // Ascending order
+        } else {
+            return dateB - dateA; // Descending order
+        }
+    });
+
+    // Get unique category options
+    const categories = Array.from(new Set(transactions.map((transaction) => transaction.category)));
+
     return (
         <div className="mt-4">
-            <Typography variant="h6" className="mb-4">
-                Transaction History
-            </Typography>
+            <div className="flex justify-between mb-4">
+                <Typography variant="h6">Transaction History</Typography>
+                <div className="flex me-4 space-x-4 ms-2">
+                    <Select
+                        value={sortOrder}
+                        onChange={(e) => setSortOrder(e.target.value)}
+                        variant="outlined"
+                        style={{ borderColor: 'primary', color: 'primary' }}
+                    >
+                        <MenuItem value="desc">Newest</MenuItem>
+                        <MenuItem value="asc">Oldest</MenuItem>
+                    </Select>
+                    <Select
+                        value={selectedCategory}
+                        onChange={(e) => setSelectedCategory(e.target.value)}
+                        variant="outlined"
+                        style={{ borderColor: 'primary', color: 'primary' }}
+                    >
+                        <MenuItem value="">All Categories</MenuItem>
+                        {categories.map((category) => (
+                            <MenuItem key={category} value={category}>
+                                {category}
+                            </MenuItem>
+                        ))}
+                    </Select>
+                    <Button
+                        variant="outlined"
+                        style={{
+                            borderColor: showLast30Days ? 'primary' : 'default',
+                            color: showLast30Days ? 'primary' : 'default',
+                        }}
+                        onClick={() => setShowLast30Days(!showLast30Days)}
+                    >
+                        Last 30 Days
+                    </Button>
+
+                </div>
+            </div>
+
             <ul className="list-disc mt-4">
-                {transactions.slice().reverse().map((transaction, index) => (
+                {sortedTransactions.map((transaction, index) => (
                     <li
                         key={index}
                         className="mb-4 p-4 border rounded-lg flex justify-between items-center"
                     >
+                        {/* Transaction details rendering */}
                         <div>
                             <p className="text-lg font-semibold">Name: {transaction.name}</p>
                             <p className="text-gray-500">Category: {transaction.category}</p>
@@ -34,7 +106,7 @@ function TransactionHistory({ transactions, onDeleteTransaction }) {
                                 <Button
                                     variant="outlined"
                                     size="small"
-                                    onClick={() => onDeleteTransaction(transactions.length - 1 - index)} // Adjust the index to match the original order
+                                    onClick={() => onDeleteTransaction(transactions.indexOf(transaction))}
                                     className="ml-2 border rounded-md"
                                 >
                                     Delete
