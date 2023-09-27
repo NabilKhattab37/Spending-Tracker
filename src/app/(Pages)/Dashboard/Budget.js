@@ -9,7 +9,7 @@ function TransactionHistory({ transactions, onDeleteTransaction }) {
             <Typography variant="h6" className="mb-4">
                 Transaction History
             </Typography>
-            <ul className="list-disc mt-4 pl-4">
+            <ul className="list-disc mt-4">
                 {transactions.slice().reverse().map((transaction, index) => (
                     <li
                         key={index}
@@ -30,14 +30,16 @@ function TransactionHistory({ transactions, onDeleteTransaction }) {
                             >
                                 {transaction.type === 'Revenue' ? `+ $${transaction.value}` : `- $${transaction.value}`}
                             </p>
-                            <Button
-                                variant="outlined"
-                                size="small"
-                                onClick={() => onDeleteTransaction(transactions.length - 1 - index)} // Adjust the index to match the original order
-                                className="ml-2 border rounded-md"
-                            >
-                                Delete
-                            </Button>
+                            <div className="mt-1 ms-2">
+                                <Button
+                                    variant="outlined"
+                                    size="small"
+                                    onClick={() => onDeleteTransaction(transactions.length - 1 - index)} // Adjust the index to match the original order
+                                    className="ml-2 border rounded-md"
+                                >
+                                    Delete
+                                </Button>
+                            </div>
                         </div>
                     </li>
                 ))}
