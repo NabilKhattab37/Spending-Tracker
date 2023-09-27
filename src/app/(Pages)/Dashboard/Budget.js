@@ -1,12 +1,13 @@
 'use client'
-import React, { useState, useEffect } from 'react';
+import React, {useEffect, useState} from 'react';
 import {Box, Button, IconButton, InputLabel, Modal, TextField, Typography} from "@mui/material";
 import CloseIcon from '@mui/icons-material/Close';
 import DeleteIcon from '@mui/icons-material/Delete';
 import Select from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
-function TransactionHistory({ transactions, onDeleteTransaction }) {
+
+function TransactionHistory({transactions, onDeleteTransaction}) {
     const [sortOrder, setSortOrder] = useState('desc'); // Default to descending order
     const [selectedCategory, setSelectedCategory] = useState(''); // Default to showing all categories
     const [showLast30Days, setShowLast30Days] = useState(false); // Default to false
@@ -45,18 +46,18 @@ function TransactionHistory({ transactions, onDeleteTransaction }) {
             <div className="flex mb-4">
                 <Typography className="place-self-center" variant="h6">Transaction History</Typography>
                 <div className="flex space-x-4 ms-2">
-                    <FormControl sx={{ m: 1, minWidth: 150 }}>
+                    <FormControl sx={{m: 1, minWidth: 150}}>
                         <Select
                             value={sortOrder}
                             onChange={(e) => setSortOrder(e.target.value)}
                             variant="outlined"
-                            style={{ borderColor: 'primary', color: 'primary' }}
+                            style={{borderColor: 'primary', color: 'primary'}}
                         >
                             <MenuItem value="desc">Newest</MenuItem>
                             <MenuItem value="asc">Oldest</MenuItem>
                         </Select>
                     </FormControl>
-                    <FormControl sx={{ m: 1, minWidth: 150 }}>
+                    <FormControl sx={{m: 1, minWidth: 150}}>
                         <InputLabel id="categoryid">Category</InputLabel>
                         <Select
                             value={selectedCategory}
@@ -65,7 +66,7 @@ function TransactionHistory({ transactions, onDeleteTransaction }) {
                             labelId="categoryid"
                             id="categoryid"
                             label="Category"
-                            style={{ borderColor: 'primary', color: 'primary' }}
+                            style={{borderColor: 'primary', color: 'primary'}}
                         >
                             <MenuItem value="">All Categories</MenuItem>
                             {categories.map((category) => (
@@ -75,7 +76,7 @@ function TransactionHistory({ transactions, onDeleteTransaction }) {
                             ))}
                         </Select>
                     </FormControl>
-                    <FormControl sx={{ m: 1, minWidth: 150 }}>
+                    <FormControl sx={{m: 1, minWidth: 150}}>
                         <Button
                             variant="outlined"
                             className="w-auto h-[56px]"
@@ -247,7 +248,7 @@ function Budget() {
             }
 
             // Store the transaction in localStorage
-            const updatedTransactions = [...transactions, { ...details, type: transactionType }];
+            const updatedTransactions = [...transactions, {...details, type: transactionType}];
             localStorage.setItem('transactions', JSON.stringify(updatedTransactions));
 
             // Clear the transaction details
@@ -322,7 +323,8 @@ function Budget() {
                 <h2 className="text-xl mb-4 text-gray-800 dark:text-white">Current Balance: ${currentBudget}</h2>
                 <form onSubmit={handleBudgetSubmit} className="max-w-xs mx-auto flex space-x-4">
                     <Button onClick={handleOpen} variant="outlined" className="me-4 mt-4">New Transaction</Button>
-                    <Button onClick={handleClearTransactions} startIcon={<DeleteIcon className="text-red-500"/>} variant="outlined" className="mt-4"><span>Clear Transactions</span></Button>
+                    <Button onClick={handleClearTransactions} startIcon={<DeleteIcon className="text-red-500"/>}
+                            variant="outlined" className="mt-4"><span>Clear Transactions</span></Button>
                     <Modal
                         open={open}
                         onClose={handleClose}
@@ -334,8 +336,10 @@ function Budget() {
                                 Select transaction type
                             </Typography>
                             <div className="flex space-x-3 mt-4 justify-center">
-                                <Button onClick={() => handleTransactionRecording('Revenue')} variant="outlined" className="me-4 mt-4 border rounded-md">Revenue</Button>
-                                <Button onClick={() => handleTransactionRecording('Expense')} variant="outlined" className="me-4 mt-4 border rounded-md">Expense</Button>
+                                <Button onClick={() => handleTransactionRecording('Revenue')} variant="outlined"
+                                        className="me-4 mt-4 border rounded-md">Revenue</Button>
+                                <Button onClick={() => handleTransactionRecording('Expense')} variant="outlined"
+                                        className="me-4 mt-4 border rounded-md">Expense</Button>
                             </div>
                         </Box>
                     </Modal>
@@ -352,13 +356,13 @@ function Budget() {
                 </form>
             </div>
             <section>
-                <TransactionHistory transactions={transactions} onDeleteTransaction={handleDeleteTransaction} />
+                <TransactionHistory transactions={transactions} onDeleteTransaction={handleDeleteTransaction}/>
             </section>
         </div>
     );
 }
 
-function TransactionRecording({ type, onClose, onRecord }) {
+function TransactionRecording({type, onClose, onRecord}) {
     const [transactionDetails, setTransactionDetails] = useState({
         value: '',
         category: '',
@@ -432,7 +436,7 @@ function TransactionRecording({ type, onClose, onRecord }) {
                             aria-label="close"
                             className="absolute top-0 right-0"
                         >
-                            <CloseIcon />
+                            <CloseIcon/>
                         </IconButton>
                     </div>
                     <Typography id="modal-modal-title" variant="h6" component="h2">
@@ -446,7 +450,7 @@ function TransactionRecording({ type, onClose, onRecord }) {
                             fullWidth
                             value={transactionDetails.name}
                             onChange={(e) =>
-                                setTransactionDetails({ ...transactionDetails, name: e.target.value })
+                                setTransactionDetails({...transactionDetails, name: e.target.value})
                             }
                             error={formErrors.name}
                             helperText={formErrors.name && 'Please enter a name.'}
@@ -458,7 +462,7 @@ function TransactionRecording({ type, onClose, onRecord }) {
                             fullWidth
                             value={transactionDetails.category}
                             onChange={(e) =>
-                                setTransactionDetails({ ...transactionDetails, category: e.target.value })
+                                setTransactionDetails({...transactionDetails, category: e.target.value})
                             }
                             error={formErrors.category}
                             helperText={formErrors.category && 'Please enter a category.'}
@@ -469,7 +473,7 @@ function TransactionRecording({ type, onClose, onRecord }) {
                             fullWidth
                             value={transactionDetails.date}
                             onChange={(e) =>
-                                setTransactionDetails({ ...transactionDetails, date: e.target.value })
+                                setTransactionDetails({...transactionDetails, date: e.target.value})
                             }
                             error={formErrors.date}
                             helperText={formErrors.date && 'Please enter a date.'}
@@ -482,7 +486,7 @@ function TransactionRecording({ type, onClose, onRecord }) {
                             placeholder="Amount"
                             value={transactionDetails.value}
                             onChange={(e) =>
-                                setTransactionDetails({ ...transactionDetails, value: e.target.value })
+                                setTransactionDetails({...transactionDetails, value: e.target.value})
                             }
                             error={formErrors.value}
                             helperText={formErrors.value && 'Please enter an amount.'}
