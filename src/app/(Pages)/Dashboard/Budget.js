@@ -290,39 +290,67 @@ function TransactionRecording({ type, onClose, onRecord }) {
             aria-labelledby="modal-modal-title"
             aria-describedby="modal-modal-description"
         >
-            <Box className="bg-gray-800 flex justify-center mt-40 space-x-4">
-                <Typography id="modal-modal-title" variant="h6" component="h2">
-                    Record {type} Transaction
-                </Typography>
-                <form onSubmit={handleTransactionSubmit} className="space-x-4">
-                    <TextField id="outlined-basic" label="Name" variant="outlined"
-                               value={transactionDetails.name}
-                               onChange={(e) => setTransactionDetails({ ...transactionDetails, name: e.target.value })}
-                    />
-                    <TextField id="outlined-basic" label="Category" variant="outlined"
-                               value={transactionDetails.category}
-                               onChange={(e) => setTransactionDetails({ ...transactionDetails, category: e.target.value })}
-                    />
-                    <TextField
-                        id="date"
-                        type="date"
-                        value={transactionDetails.date}
-                        onChange={(e) => setTransactionDetails({ ...transactionDetails, date: e.target.value })}
-                    />
-                    <TextField
-                        id="standard-number"
-                        label="Amount"
-                        type="number"
-                        placeholder="Amount"
-                        value={transactionDetails.value}
-                        onChange={(e) => setTransactionDetails({ ...transactionDetails, value: e.target.value })}
-                        InputLabelProps={{
-                            shrink: true,
-                        }}
-                        variant="standard"
-                    />
-                    <Button type="submit" variant="outlined" className="me-4 mt-4 border rounded-md">Record Transaction</Button>
-                </form>
+            <Box className="fixed inset-0 flex items-center justify-center z-50">
+                <div className="bg-white dark:bg-gray-800 w-96 p-6 rounded-xl">
+                    <Typography id="modal-modal-title" variant="h6" component="h2">
+                        Record {type} Transaction
+                    </Typography>
+                    <form onSubmit={handleTransactionSubmit} className="space-y-4 mt-4">
+                        <TextField
+                            id="outlined-basic"
+                            label="Name"
+                            variant="outlined"
+                            fullWidth
+                            value={transactionDetails.name}
+                            onChange={(e) =>
+                                setTransactionDetails({ ...transactionDetails, name: e.target.value })
+                            }
+                        />
+                        <TextField
+                            id="outlined-basic"
+                            label="Category"
+                            variant="outlined"
+                            fullWidth
+                            value={transactionDetails.category}
+                            onChange={(e) =>
+                                setTransactionDetails({ ...transactionDetails, category: e.target.value })
+                            }
+                        />
+                        <TextField
+                            id="date"
+                            type="date"
+                            fullWidth
+                            value={transactionDetails.date}
+                            onChange={(e) =>
+                                setTransactionDetails({ ...transactionDetails, date: e.target.value })
+                            }
+                        />
+                        <TextField
+                            id="standard-number"
+                            label="Amount"
+                            type="number"
+                            fullWidth
+                            placeholder="Amount"
+                            value={transactionDetails.value}
+                            onChange={(e) =>
+                                setTransactionDetails({ ...transactionDetails, value: e.target.value })
+                            }
+                            InputLabelProps={{
+                                shrink: true,
+                            }}
+                            variant="standard"
+                        />
+                        <Button
+                            type="submit"
+                            variant="contained"
+                            color="primary"
+                            fullWidth
+                            className="mt-4"
+                        >
+                            Record Transaction
+                        </Button>
+                    </form>
+                </div>
             </Box>
         </Modal>
     );
