@@ -4,27 +4,36 @@ import CloseIcon from '@mui/icons-material/Close';
 import DeleteIcon from '@mui/icons-material/Delete';
 
 function TransactionHistory({ transactions, onDeleteTransaction }) {
-    const reversedTransactions = [...transactions].reverse();
-
     return (
         <div className="mt-4">
-            <Typography variant="h6" className="mb-4">Transaction History</Typography>
+            <Typography variant="h6" className="mb-4">
+                Transaction History
+            </Typography>
             <ul className="list-disc mt-4 pl-4">
-                {reversedTransactions.map((transaction, index) => (
-                    <li key={index} className="mb-4 p-4 border rounded-lg flex justify-between items-center">
+                {transactions.slice().reverse().map((transaction, index) => (
+                    <li
+                        key={index}
+                        className="mb-4 p-4 border rounded-lg flex justify-between items-center"
+                    >
                         <div>
                             <p className="text-lg font-semibold">Name: {transaction.name}</p>
                             <p className="text-gray-500">Category: {transaction.category}</p>
                             <p className="text-gray-500">Date: {transaction.date}</p>
                         </div>
                         <div>
-                            <p className={`text-xl ${transaction.type === 'Revenue' ? 'text-green-500' : 'text-red-500'}`}>
+                            <p
+                                className={`text-xl ${
+                                    transaction.type === 'Revenue'
+                                        ? 'text-green-500'
+                                        : 'text-red-500'
+                                }`}
+                            >
                                 {transaction.type === 'Revenue' ? `+ $${transaction.value}` : `- $${transaction.value}`}
                             </p>
                             <Button
                                 variant="outlined"
                                 size="small"
-                                onClick={() => onDeleteTransaction(index)}
+                                onClick={() => onDeleteTransaction(transactions.length - 1 - index)} // Adjust the index to match the original order
                                 className="ml-2 border rounded-md"
                             >
                                 Delete
@@ -36,6 +45,7 @@ function TransactionHistory({ transactions, onDeleteTransaction }) {
         </div>
     );
 }
+
 
 function Budget() {
     const isClient = typeof window !== 'undefined';
