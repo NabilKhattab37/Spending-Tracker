@@ -34,46 +34,33 @@ function Budget() {
         // Calculate the initial current budget based on the budget value
         const initialCurrentBudget = parseFloat(localBudget) - initialExpenses + initialRevenue;
         setCurrentBudget(initialCurrentBudget.toFixed(2));
-    }, [localBudget]); // Include localBudget as a dependency
+    }, [localBudget]);
+
+    useEffect(() => {
+        // Update the current budget whenever revenue or expenses change
+        const updatedCurrentBudget = parseFloat(localBudget) - expenses + revenue;
+        setCurrentBudget(updatedCurrentBudget.toFixed(2));
+    }, [localBudget, expenses, revenue]);
 
     const handleBudgetSubmit = (event) => {
         event.preventDefault();
-
-        // Parse the input value as a float and set it as the new localBudget
         const newLocalBudget = parseFloat(localBudget);
         if (!isNaN(newLocalBudget)) {
-            localStorage.setItem('budget', newLocalBudget.toString()); // Store as a string
-            setLocalBudget(newLocalBudget); // Update localBudget as a number
-
-            // Update the current budget with the new budget value
-            const updatedCurrentBudget = newLocalBudget - expenses + revenue;
-            setCurrentBudget(updatedCurrentBudget.toFixed(2));
+            localStorage.setItem('budget', newLocalBudget.toString());
+            setLocalBudget(newLocalBudget);
         } else {
-            // Handle invalid input (e.g., non-numeric input)
-            // You can display an error message or take appropriate action here
+            // Handle invalid input
         }
     };
 
-    // Clear Transactions Function
     const handleClearTransactions = () => {
-        // Clear transactions in localStorage
         localStorage.removeItem('transactions');
-
-        // Reset revenue and expenses to zero
         setRevenue(0);
         setExpenses(0);
-
-        // Calculate the updated current budget
-        const updatedCurrentBudget = localBudget - expenses + revenue;
-        setCurrentBudget(updatedCurrentBudget.toFixed(2));
-
-        // Update the displayed budget
-        setDisplayedBudget(updatedCurrentBudget.toFixed(2));
+        setLocalBudget(currentBudget); // Reset localBudget to the current budget
     };
 
-    // Refresh Function
     const handleRefresh = () => {
-        // Reload the page to reflect changes
         window.location.reload();
     };
 
