@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import {Box, Button, IconButton, Modal, TextField, Typography} from "@mui/material";
+import {Box, Button, IconButton, InputLabel, Modal, TextField, Typography} from "@mui/material";
 import CloseIcon from '@mui/icons-material/Close';
 import DeleteIcon from '@mui/icons-material/Delete';
 import Select from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
-
+import FormControl from '@mui/material/FormControl';
 function TransactionHistory({ transactions, onDeleteTransaction }) {
     const [sortOrder, setSortOrder] = useState('desc'); // Default to descending order
     const [selectedCategory, setSelectedCategory] = useState(''); // Default to showing all categories
@@ -53,19 +53,25 @@ function TransactionHistory({ transactions, onDeleteTransaction }) {
                         <MenuItem value="desc">Newest</MenuItem>
                         <MenuItem value="asc">Oldest</MenuItem>
                     </Select>
-                    <Select
-                        value={selectedCategory}
-                        onChange={(e) => setSelectedCategory(e.target.value)}
-                        variant="outlined"
-                        style={{ borderColor: 'primary', color: 'primary' }}
-                    >
-                        <MenuItem value="">All Categories</MenuItem>
-                        {categories.map((category) => (
-                            <MenuItem key={category} value={category}>
-                                {category}
-                            </MenuItem>
-                        ))}
-                    </Select>
+                    <FormControl fullWidth>
+                        <InputLabel id="categoryid">Category</InputLabel>
+                        <Select
+                            value={selectedCategory}
+                            onChange={(e) => setSelectedCategory(e.target.value)}
+                            variant="outlined"
+                            labelId="categoryid"
+                            id="categoryid"
+                            label="Category"
+                            style={{ borderColor: 'primary', color: 'primary' }}
+                        >
+                            <MenuItem value="">All Categories</MenuItem>
+                            {categories.map((category) => (
+                                <MenuItem key={category} value={category}>
+                                    {category}
+                                </MenuItem>
+                            ))}
+                        </Select>
+                    </FormControl>
                     <Button
                         variant="outlined"
                         style={{
@@ -76,7 +82,6 @@ function TransactionHistory({ transactions, onDeleteTransaction }) {
                     >
                         Last 30 Days
                     </Button>
-
                 </div>
             </div>
 
@@ -300,7 +305,7 @@ function Budget() {
 
     return (
         <div>
-            <div className="bg-white dark:bg-gray-800 h-auto p-4 rounded-xl">
+            <div className="bg-white dark:bg-gray-800 h-auto p-4 rounded-xl justify-center text-center">
                 <h1 className="text-2xl mb-4 text-gray-800 dark:text-white">Expense Tracker</h1>
                 <h2 className="text-xl mb-4 text-gray-800 dark:text-white">Current Balance: ${currentBudget}</h2>
                 <form onSubmit={handleBudgetSubmit} className="max-w-xs mx-auto flex space-x-4">
@@ -348,10 +353,32 @@ function TransactionRecording({ type, onClose, onRecord }) {
         date: '',
         name: '',
     });
+    const [formErrors, setFormErrors] = useState({
+        name: false,
+        category: false,
+        date: false,
+        value: false,
+    });
 
     const handleTransactionSubmit = (event) => {
         event.preventDefault();
 
+        // Check if any required fields are empty
+        const errors = {
+            name: !transactionDetails.name,
+            category: !transactionDetails.category,
+            date: !transactionDetails.date,
+            value: !transactionDetails.value,
+        };
+
+        setFormErrors(errors);
+
+        // If there are errors, prevent form submission
+        if (Object.values(errors).some((error) => error)) {
+            return;
+        }
+
+        // If all required fields are filled, proceed with recording the transaction
         onRecord({
             type,
             ...transactionDetails,
@@ -366,6 +393,7 @@ function TransactionRecording({ type, onClose, onRecord }) {
 
         onClose();
     };
+
     const style = {
         position: 'absolute',
         top: '50%',
@@ -382,16 +410,15 @@ function TransactionRecording({ type, onClose, onRecord }) {
             aria-labelledby="modal-modal-title"
             aria-describedby="modal-modal-description"
         >
-            <Box sx={style} className="fixed items-center justify-center object-center z-50">
-                <div className="bg-white dark:bg-gray-800 w-96 p-4 rounded-xl ">
+            <Box sx={style}>
+                <div className="bg-white dark:bg-gray-800 w-96 p-4 rounded-xl relative">
                     <div className="relative " dir="rtl">
                         <IconButton
                             edge="end"
                             color="inherit"
-                            onClick={onClose} // Close the modal when the button is clicked
+                            onClick={onClose}
                             aria-label="close"
                             className="absolute top-0 right-0"
-
                         >
                             <CloseIcon />
                         </IconButton>
@@ -409,6 +436,8 @@ function TransactionRecording({ type, onClose, onRecord }) {
                             onChange={(e) =>
                                 setTransactionDetails({ ...transactionDetails, name: e.target.value })
                             }
+                            error={formErrors.name}
+                            helperText={formErrors.name && 'Please enter a name.'}
                         />
                         <TextField
                             id="outlined-basic"
@@ -419,6 +448,8 @@ function TransactionRecording({ type, onClose, onRecord }) {
                             onChange={(e) =>
                                 setTransactionDetails({ ...transactionDetails, category: e.target.value })
                             }
+                            error={formErrors.category}
+                            helperText={formErrors.category && 'Please enter a category.'}
                         />
                         <TextField
                             id="date"
@@ -428,6 +459,8 @@ function TransactionRecording({ type, onClose, onRecord }) {
                             onChange={(e) =>
                                 setTransactionDetails({ ...transactionDetails, date: e.target.value })
                             }
+                            error={formErrors.date}
+                            helperText={formErrors.date && 'Please enter a date.'}
                         />
                         <TextField
                             id="standard-number"
@@ -439,6 +472,8 @@ function TransactionRecording({ type, onClose, onRecord }) {
                             onChange={(e) =>
                                 setTransactionDetails({ ...transactionDetails, value: e.target.value })
                             }
+                            error={formErrors.value}
+                            helperText={formErrors.value && 'Please enter an amount.'}
                             InputLabelProps={{
                                 shrink: true,
                             }}
