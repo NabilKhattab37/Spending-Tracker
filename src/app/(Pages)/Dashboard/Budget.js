@@ -41,18 +41,20 @@ function TransactionHistory({ transactions, onDeleteTransaction }) {
 
     return (
         <div className="mt-4">
-            <div className="flex justify-between mb-4">
-                <Typography className=" place-self-center" variant="h6">Transaction History</Typography>
-                <div className="flex me-4 space-x-4 ms-2">
-                    <Select
-                        value={sortOrder}
-                        onChange={(e) => setSortOrder(e.target.value)}
-                        variant="outlined"
-                        style={{ borderColor: 'primary', color: 'primary' }}
-                    >
-                        <MenuItem value="desc">Newest</MenuItem>
-                        <MenuItem value="asc">Oldest</MenuItem>
-                    </Select>
+            <div className="flex mb-4">
+                <Typography className="place-self-center" variant="h6">Transaction History</Typography>
+                <div className="flex space-x-4 ms-2">
+                    <FormControl sx={{ m: 1, minWidth: 150 }}>
+                        <Select
+                            value={sortOrder}
+                            onChange={(e) => setSortOrder(e.target.value)}
+                            variant="outlined"
+                            style={{ borderColor: 'primary', color: 'primary' }}
+                        >
+                            <MenuItem value="desc">Newest</MenuItem>
+                            <MenuItem value="asc">Oldest</MenuItem>
+                        </Select>
+                    </FormControl>
                     <FormControl sx={{ m: 1, minWidth: 150 }}>
                         <InputLabel id="categoryid">Category</InputLabel>
                         <Select
@@ -72,17 +74,19 @@ function TransactionHistory({ transactions, onDeleteTransaction }) {
                             ))}
                         </Select>
                     </FormControl>
-                    <Button
-                        variant="outlined"
-                        className="w-[10vw]"
-                        style={{
-                            borderColor: showLast30Days ? 'primary' : 'default',
-                            color: showLast30Days ? 'primary' : 'default',
-                        }}
-                        onClick={() => setShowLast30Days(!showLast30Days)}
-                    >
-                        Last 30 Days
-                    </Button>
+                    <FormControl sx={{ m: 1, minWidth: 150 }}>
+                        <Button
+                            variant="outlined"
+                            className="w-auto h-[56px]"
+                            style={{
+                                borderColor: showLast30Days ? 'primary' : 'default',
+                                color: showLast30Days ? 'primary' : 'default',
+                            }}
+                            onClick={() => setShowLast30Days(!showLast30Days)}
+                        >
+                            Last 30 Days
+                        </Button>
+                    </FormControl>
                 </div>
             </div>
             <ul className="list-disc mt-4">
