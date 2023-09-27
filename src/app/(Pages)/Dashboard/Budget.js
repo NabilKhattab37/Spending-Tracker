@@ -2,7 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { Box, Button, Modal, TextField, Typography } from "@mui/material";
 
 function Budget() {
-    const [localBudget, setLocalBudget] = useState(() => parseFloat(localStorage.getItem('budget')) || 0);
+    const isClient = typeof window !== 'undefined';
+
+    const [localBudget, setLocalBudget] = useState(
+        isClient ? () => parseFloat(localStorage.getItem('budget')) || 0 : 0
+    );
     const [displayedBudget, setDisplayedBudget] = useState(() => localBudget);
     const [currentBudget, setCurrentBudget] = useState(() => localBudget);
 
