@@ -13,7 +13,7 @@ export default function Home() {
   return (
       <ThemeProvider theme={darkTheme}>
           <CssBaseline />
-          <main  className="flex min-h-screen flex-col items-center justify-between p-24">
+          <main>
               <Dashboard></Dashboard>
           </main>
       </ThemeProvider>
