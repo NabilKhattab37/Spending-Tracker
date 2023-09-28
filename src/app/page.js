@@ -7,14 +7,14 @@ const darkTheme = createTheme({
         mode: 'dark',
     },
 });
-import Dashboard from "@/app/(Pages)/Dashboard/page";
+import Budget from "@/app/Components/Budget";
 
 export default function Home() {
   return (
       <ThemeProvider theme={darkTheme}>
           <CssBaseline />
-          <main>
-              <Dashboard></Dashboard>
+          <main className="flex min-h-screen flex-col items-center justify-between p-24">
+              <Budget></Budget>
           </main>
       </ThemeProvider>
   )
