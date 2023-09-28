@@ -374,7 +374,7 @@ function Budget() {
     return (
         <div>
             <div className="bg-white dark:bg-gray-800 h-auto p-4 rounded-xl justify-center text-center">
-                <h1 className="text-2xl mb-4 text-gray-800 dark:text-white">Expense Tracker</h1>
+                <h1 className="text-2xl mb-4 text-gray-800 dark:text-white">Transaction Tracker</h1>
                 <h2 className="text-xl mb-4 text-gray-800 dark:text-white">Current Balance: ${currentBudget}</h2>
                 <form onSubmit={handleBudgetSubmit} className="mx-auto flex space-x-4">
                     <FormControl sx={{m: 1, minWidth: 150}}>
