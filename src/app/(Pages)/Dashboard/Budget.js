@@ -1,50 +1,47 @@
 'use client'
 import React, {useEffect, useState} from 'react';
-import {Box, Button, IconButton, InputLabel, Modal, TextField, Typography} from "@mui/material";
+import {Box, Button, IconButton, InputLabel, Modal, TextField, Typography} from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import DeleteIcon from '@mui/icons-material/Delete';
 import Select from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
+import Papa from 'papaparse';
 
 function TransactionHistory({transactions, onDeleteTransaction}) {
-    const [sortOrder, setSortOrder] = useState('desc'); // Default to descending order
-    const [selectedCategory, setSelectedCategory] = useState(''); // Default to showing all categories
-    const [showLast30Days, setShowLast30Days] = useState(false); // Default to false
+    const [sortOrder, setSortOrder] = useState('desc');
+    const [selectedCategory, setSelectedCategory] = useState('');
+    const [showLast30Days, setShowLast30Days] = useState(false);
 
-    // Filter transactions based on selectedCategory and showLast30Days
     const filteredTransactions = transactions.filter((transaction) => {
         const dateA = new Date(transaction.date);
         const dateB = new Date();
 
-        // Check if the transaction's category matches the selectedCategory
         const categoryMatch = selectedCategory === '' || transaction.category === selectedCategory;
-
-        // Check if the transaction is within the last 30 days
         const last30Days = showLast30Days ? dateB - dateA <= 30 * 24 * 60 * 60 * 1000 : true;
 
         return categoryMatch && last30Days;
     });
 
-    // Sort filtered transactions based on the chosen sort order
     const sortedTransactions = [...filteredTransactions].sort((a, b) => {
         const dateA = new Date(a.date);
         const dateB = new Date(b.date);
 
         if (sortOrder === 'asc') {
-            return dateA - dateB; // Ascending order
+            return dateA - dateB;
         } else {
-            return dateB - dateA; // Descending order
+            return dateB - dateA;
         }
     });
 
-    // Get unique category options
     const categories = Array.from(new Set(transactions.map((transaction) => transaction.category)));
 
     return (
         <div className="mt-4">
             <div className="flex mb-4">
-                <Typography className="place-self-center" variant="h6">Transaction History</Typography>
+                <Typography className="place-self-center" variant="h6">
+                    Transaction History
+                </Typography>
                 <div className="flex space-x-4 ms-2">
                     <FormControl sx={{m: 1, minWidth: 150}}>
                         <Select
@@ -93,11 +90,7 @@ function TransactionHistory({transactions, onDeleteTransaction}) {
             </div>
             <ul className="list-disc mt-4">
                 {sortedTransactions.map((transaction, index) => (
-                    <li
-                        key={index}
-                        className="mb-4 p-4 border rounded-lg flex justify-between items-center"
-                    >
-                        {/* Transaction details rendering */}
+                    <li key={index} className="mb-4 p-4 border rounded-lg flex justify-between items-center">
                         <div>
                             <p className="text-lg font-semibold">Name: {transaction.name}</p>
                             <p className="text-gray-500">Category: {transaction.category}</p>
@@ -106,9 +99,7 @@ function TransactionHistory({transactions, onDeleteTransaction}) {
                         <div>
                             <p
                                 className={`text-xl ${
-                                    transaction.type === 'Revenue'
-                                        ? 'text-green-500'
-                                        : 'text-red-500'
+                                    transaction.type === 'Revenue' ? 'text-green-500' : 'text-red-500'
                                 }`}
                             >
                                 {transaction.type === 'Revenue' ? `+ $${transaction.value}` : `- $${transaction.value}`}
@@ -131,7 +122,6 @@ function TransactionHistory({transactions, onDeleteTransaction}) {
     );
 }
 
-
 function Budget() {
     const isClient = typeof window !== 'undefined';
 
@@ -149,6 +139,8 @@ function Budget() {
         date: '',
         name: '',
     });
+
+
 
     const [revenue, setRevenue] = useState(0);
     const [expenses, setExpenses] = useState(0);
@@ -278,6 +270,69 @@ function Budget() {
         }
     };
 
+    const handleCSV = (event, action) => {
+        if (action === 'upload') {
+            const file = event.target.files[0];
+
+            if (file) {
+                const reader = new FileReader();
+
+                reader.onload = (e) => {
+                    const fileContent = e.target.result;
+
+                    // Parse the CSV data using PapaParse
+                    Papa.parse(fileContent, {
+                        header: true, // Assumes the first row contains headers
+                        dynamicTyping: true, // Automatically convert numeric values
+                        complete: (results) => {
+                            // Extract the parsed data from the results object
+                            const parsedData = results.data;
+
+                            // Update the transactions state with the parsed data
+                            setTransactions(parsedData);
+                        },
+                        error: (error) => {
+                            console.error('CSV parsing error:', error.message);
+                        },
+                    });
+                };
+
+                reader.readAsText(file);
+            }
+        } else if (action === 'download') {
+            // Convert the transaction history to CSV format
+            const csvData = transactions.map((transaction) => ({
+                Name: transaction.name,
+                Category: transaction.category,
+                Date: transaction.date,
+                Type: transaction.type,
+                Value: transaction.value,
+            }));
+
+            // Convert the data to CSV format using papaparse
+            const csvContent = Papa.unparse(csvData);
+
+            // Create a Blob with the CSV data
+            const blob = new Blob([csvContent], {type: 'text/csv'});
+
+            // Create a temporary URL to the Blob
+            const url = window.URL.createObjectURL(blob);
+
+            // Create a temporary anchor element for the download
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'transaction_history.csv';
+
+            // Trigger the click event on the anchor element to start the download
+            a.click();
+
+            // Clean up by revoking the URL and removing the anchor element
+            window.URL.revokeObjectURL(url);
+            a.remove();
+        }
+    };
+
+
     const handleDeleteTransaction = (indexToDelete) => {
         // Remove the transaction at the specified index
         const updatedTransactions = [...transactions];
@@ -321,10 +376,26 @@ function Budget() {
             <div className="bg-white dark:bg-gray-800 h-auto p-4 rounded-xl justify-center text-center">
                 <h1 className="text-2xl mb-4 text-gray-800 dark:text-white">Expense Tracker</h1>
                 <h2 className="text-xl mb-4 text-gray-800 dark:text-white">Current Balance: ${currentBudget}</h2>
-                <form onSubmit={handleBudgetSubmit} className="max-w-xs mx-auto flex space-x-4">
-                    <Button onClick={handleOpen} variant="outlined" className="me-4 mt-4">New Transaction</Button>
-                    <Button onClick={handleClearTransactions} startIcon={<DeleteIcon className="text-red-500"/>}
-                            variant="outlined" className="mt-4"><span>Clear Transactions</span></Button>
+                <form onSubmit={handleBudgetSubmit} className="mx-auto flex space-x-4">
+                    <FormControl sx={{m: 1, minWidth: 150}}>
+                        <Button onClick={handleOpen} variant="outlined">
+                            New Transaction
+                        </Button>
+                    </FormControl>
+                    <FormControl sx={{m: 1, minWidth: 150}}>
+                        <Button
+                            onClick={handleClearTransactions}
+                            startIcon={<DeleteIcon className="text-red-500"/>}
+                            variant="outlined"
+                        >
+                            <span>Clear Transactions</span>
+                        </Button>
+                    </FormControl>
+                    <FormControl sx={{m: 1, minWidth: 150}}>
+                        <Button variant="outlined" onClick={(e) => handleCSV(e, 'download')}>
+                            Download CSV
+                        </Button>
+                    </FormControl>
                     <Modal
                         open={open}
                         onClose={handleClose}
