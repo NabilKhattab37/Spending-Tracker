@@ -13,8 +13,10 @@ export default function Home() {
   return (
       <ThemeProvider theme={darkTheme}>
           <CssBaseline />
-          <main className="flex min-h-screen flex-col items-center justify-between p-24">
-              <Budget></Budget>
+          <main>
+              <section className="justify-center items-center p-24 flex">
+                  <Budget className="flex items-center justify-between"></Budget>
+              </section>
           </main>
       </ThemeProvider>
   )
