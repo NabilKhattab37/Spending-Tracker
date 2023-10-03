@@ -376,7 +376,7 @@ function Budget() {
             <div className="bg-white dark:bg-gray-800 h-auto p-4 rounded-xl justify-center text-center">
                 <h1 className="text-2xl mb-4 text-gray-800 dark:text-white">Transaction Tracker</h1>
                 <h2 className="text-xl mb-4 text-gray-800 dark:text-white">Current Balance: ${currentBudget}</h2>
-                <form onSubmit={handleBudgetSubmit} className="mx-auto flex space-x-4">
+                <form onSubmit={handleBudgetSubmit} className="justify-center items-center flex">
                     <FormControl sx={{m: 1, minWidth: 150}}>
                         <Button onClick={handleOpen} variant="outlined">
                             New Transaction
@@ -406,7 +406,7 @@ function Budget() {
                             <Typography id="modal-modal-title" variant="h6" component="h2" className="text-center">
                                 Select transaction type
                             </Typography>
-                            <div className="flex space-x-3 mt-4 justify-center">
+                            <div className="flex mt-4 items-center justify-center">
                                 <Button onClick={() => handleTransactionRecording('Revenue')} variant="outlined"
                                         className="me-4 mt-4 border rounded-md">Revenue</Button>
                                 <Button onClick={() => handleTransactionRecording('Expense')} variant="outlined"
