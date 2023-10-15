@@ -373,12 +373,9 @@ function Ttracker() {
     };
 
     const [showAlert, setShowAlert] = useState(false);
-    let initialThreshold = '0';
-    if (typeof window !== 'undefined') {
-        initialThreshold = localStorage.getItem('balanceThreshold') || '0';
-    }
-    const [balanceThreshold, setBalanceThreshold] = useState(initialThreshold);
-
+    const [balanceThreshold, setBalanceThreshold] = useState(
+        localStorage.getItem('balanceThreshold') || '0'
+    );
     useEffect(() => {
         const threshold = parseFloat(balanceThreshold);
         if (currentBudget < threshold) {
@@ -386,10 +383,8 @@ function Ttracker() {
         } else {
             setShowAlert(false);
         }
-        // Save to localStorage if available
-        if (typeof window !== 'undefined') {
-            localStorage.setItem('balanceThreshold', balanceThreshold);
-        }
+        // Save to localStorage
+        localStorage.setItem('balanceThreshold', balanceThreshold);
     }, [currentBudget, balanceThreshold]);
 
     return (
