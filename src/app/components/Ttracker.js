@@ -602,14 +602,14 @@ function TransactionRecording({type, onClose, onRecord}) {
                             }}
                             variant="standard"
                         />
-                        <Button
-                            type="submit"
-                            variant="contained"
-                            fullWidth
-                            className="mt-4 text-white text-xl bg-green-800 hover:bg-green-700"
-                        >
-                            Record Transaction
-                        </Button>
+                        <div className="flex justify-center">
+                            <button
+                                type="submit"
+                                className="mt-4 justify-center items-center bg-green-800 hover:bg-green-700 text-white text-xl font-semibold py-2 px-4 rounded-full"
+                            >
+                                Record Transaction
+                            </button>
+                        </div>
                     </form>
                 </div>
             </Box>
