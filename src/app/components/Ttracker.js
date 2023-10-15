@@ -396,22 +396,22 @@ function Ttracker() {
             <div className="bg-white dark:bg-gray-800 h-auto p-4 rounded-xl justify-center text-center">
                 {showAlert && (
                     <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4">
-                        <strong className="font-bold">Alert!</strong>
+                        <strong className="font-bold">Alert! </strong>
                         <span className="block sm:inline">Your balance has fallen below the threshold.</span>
                     </div>
                 )}
                 <h1 className="text-2xl mb-4 text-gray-800 dark:text-white">Transaction Tracker</h1>
-                <input
-                    type="number"
-                    value={balanceThreshold}
-                    onChange={(e) => setBalanceThreshold(parseInt(e.target.value))}
-                    className="border border-gray-300 dark:bg-gray-700 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 rounded-md p-3 mb-4"
-                    placeholder="Enter balance threshold"
-                />
                 <h2
                     className={`text-xl mb-4 ${currentBudget < parseFloat(balanceThreshold) ? 'text-red-500' : 'text-gray-800'} dark:text-white`}
                 >
-                    Balance Threshold: ${balanceThreshold}
+                    Balance Threshold:
+                    <input
+                    type="number"
+                    value={balanceThreshold}
+                    onChange={(e) => setBalanceThreshold(parseInt(e.target.value))}
+                    className="border ms-2 w-auto border-gray-300 dark:bg-gray-700 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 rounded-md p-3 mb-4"
+                    placeholder="Enter balance threshold"
+                />
                 </h2>
                 <h2 className="text-xl mb-4 text-gray-800 dark:text-white">Current Balance: ${currentBudget}</h2>
                 <form onSubmit={handleBudgetSubmit} className="justify-center items-center flex">
