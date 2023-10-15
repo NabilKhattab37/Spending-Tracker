@@ -373,18 +373,20 @@ function Ttracker() {
     };
 
     const [showAlert, setShowAlert] = useState(false);
-    const [balanceThreshold, setBalanceThreshold] = useState(
-        localStorage.getItem('balanceThreshold') || '0'
-    );
+    const initialBalanceThreshold = typeof localStorage !== 'undefined' ? localStorage.getItem('balanceThreshold') || '0' : '0';
+    const [balanceThreshold, setBalanceThreshold] = useState(initialBalanceThreshold);
+
     useEffect(() => {
-        const threshold = parseFloat(balanceThreshold);
-        if (currentBudget < threshold) {
-            setShowAlert(true);
-        } else {
-            setShowAlert(false);
+        if (typeof localStorage !== 'undefined') {
+            const threshold = parseFloat(balanceThreshold);
+            if (currentBudget < threshold) {
+                setShowAlert(true);
+            } else {
+                setShowAlert(false);
+            }
+            // Save to localStorage
+            localStorage.setItem('balanceThreshold', balanceThreshold);
         }
-        // Save to localStorage
-        localStorage.setItem('balanceThreshold', balanceThreshold);
     }, [currentBudget, balanceThreshold]);
 
     return (
