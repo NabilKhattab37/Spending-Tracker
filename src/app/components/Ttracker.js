@@ -605,7 +605,6 @@ function TransactionRecording({type, onClose, onRecord}) {
                         <Button
                             type="submit"
                             variant="contained"
-                            color="primary"
                             fullWidth
                             className="mt-4 text-white text-xl bg-green-800 hover:bg-green-700"
                         >
