@@ -2,8 +2,7 @@
 module.exports = {
   content: [
     './src/pages/**/*.{js,ts,jsx,tsx,mdx}',
-    "./Components/**/*.{js,ts,jsx,tsx}",
-    "./src/app/Components/**/*.{js,ts,jsx,tsx}",
+    './src/app/Components/**/*.{js,ts,jsx,tsx}', // Modified path for the Components directory
     './src/app/**/*.{js,ts,jsx,tsx,mdx}',
   ],
   theme: {
