@@ -7,7 +7,7 @@ const darkTheme = createTheme({
         mode: 'dark',
     },
 });
-import Budget from "@/app/Components/Budget";
+import Ttracker from "@/app/Components/Ttracker";
 
 export default function Home() {
   return (
@@ -15,7 +15,7 @@ export default function Home() {
           <CssBaseline />
           <main>
               <section className="justify-center items-center p-24 flex">
-                  <Budget className="flex items-center justify-between"></Budget>
+                  <Ttracker className="flex items-center justify-between"></Ttracker>
               </section>
           </main>
       </ThemeProvider>

@@ -16,7 +16,7 @@ This is a simple React application for tracking financial transactions. It allow
 
 ## Usage
 
-To access and use the Financial Tracker and Budget Management App, simply visit the hosted website:
+To access and use the Financial Tracker and Ttracker Management App, simply visit the hosted website:
 
 [Transaction Tracker App](https://transaction-tracker-nine.vercel.app)
 
