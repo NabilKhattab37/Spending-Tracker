@@ -442,11 +442,11 @@ function Ttracker() {
                             <Typography id="modal-modal-title" variant="h6" component="h2" className="text-center">
                                 Select transaction type
                             </Typography>
-                            <div className="flex mt-4 items-center justify-center">
+                            <div className="flex mt-4 space-x-6 items-center justify-center">
                                 <Button onClick={() => handleTransactionRecording('Revenue')} variant="outlined"
-                                        className="me-4 mt-4 border rounded-md">Revenue</Button>
+                                        className="mt-4 border rounded-md">Revenue</Button>
                                 <Button onClick={() => handleTransactionRecording('Expense')} variant="outlined"
-                                        className="me-4 mt-4 border rounded-md">Expense</Button>
+                                        className="mt-4 border rounded-md">Expense</Button>
                             </div>
                         </Box>
                     </Modal>
