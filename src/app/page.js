@@ -7,7 +7,7 @@ const darkTheme = createTheme({
         mode: 'dark',
     },
 });
-import Ttracker from "@/app/Components/Ttracker";
+import Ttracker from "@/app/components/Ttracker";
 
 export default function Home() {
   return (
