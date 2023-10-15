@@ -88,36 +88,38 @@ function TransactionHistory({transactions, onDeleteTransaction}) {
                     </FormControl>
                 </div>
             </div>
-            <ul className="list-disc mt-4">
-                {sortedTransactions.map((transaction, index) => (
-                    <li key={index} className="mb-4 p-4 border rounded-lg flex justify-between items-center">
-                        <div>
-                            <p className="text-lg font-semibold">Name: {transaction.name}</p>
-                            <p className="text-gray-500">Category: {transaction.category}</p>
-                            <p className="text-gray-500">Date: {transaction.date}</p>
-                        </div>
-                        <div>
-                            <p
-                                className={`text-xl ${
-                                    transaction.type === 'Revenue' ? 'text-green-500' : 'text-red-500'
-                                }`}
-                            >
-                                {transaction.type === 'Revenue' ? `+ $${transaction.value}` : `- $${transaction.value}`}
-                            </p>
-                            <div className="mt-1 ms-2">
-                                <Button
-                                    variant="outlined"
-                                    size="small"
-                                    onClick={() => onDeleteTransaction(transactions.indexOf(transaction))}
-                                    className="ml-2 border rounded-md"
-                                >
-                                    Delete
-                                </Button>
+            <div className="max-h-[50vh] overflow-y-scroll scroll-smooth pe-4"  style={{ scrollbarWidth: 'thin' }}>
+                <ul className="list-disc mt-4">
+                    {sortedTransactions.map((transaction, index) => (
+                        <li key={index} className="mb-4 p-4 border rounded-lg flex justify-between items-center">
+                            <div>
+                                <p className="text-lg font-semibold">Name: {transaction.name}</p>
+                                <p className="text-gray-500">Category: {transaction.category}</p>
+                                <p className="text-gray-500">Date: {transaction.date}</p>
                             </div>
-                        </div>
-                    </li>
-                ))}
-            </ul>
+                            <div>
+                                <p
+                                    className={`text-xl ${
+                                        transaction.type === 'Revenue' ? 'text-green-500' : 'text-red-500'
+                                    }`}
+                                >
+                                    {transaction.type === 'Revenue' ? `+ $${transaction.value}` : `- $${transaction.value}`}
+                                </p>
+                                <div className="mt-1 ms-2">
+                                    <Button
+                                        variant="outlined"
+                                        size="small"
+                                        onClick={() => onDeleteTransaction(transactions.indexOf(transaction))}
+                                        className="ml-2 border rounded-md"
+                                    >
+                                        Delete
+                                    </Button>
+                                </div>
+                            </div>
+                        </li>
+                    ))}
+                </ul>
+            </div>
         </div>
     );
 }
@@ -535,7 +537,7 @@ function TransactionRecording({type, onClose, onRecord}) {
         >
             <Box sx={style}>
                 <div className="bg-white dark:bg-gray-800 w-96 p-4 rounded-xl relative">
-                    <div className="relative " dir="rtl">
+                    <div className="relative ">
                         <IconButton
                             edge="end"
                             color="inherit"
