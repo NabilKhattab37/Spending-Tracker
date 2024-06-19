@@ -400,7 +400,7 @@ function Ttracker() {
                         <span className="block sm:inline">Your balance has fallen below the threshold.</span>
                     </div>
                 )}
-                <h1 className="text-2xl mb-4 text-gray-800 dark:text-white">Transaction Tracker</h1>
+                <h1 className="text-2xl mb-4 text-gray-800 dark:text-white">Spending Tracker</h1>
                 <h2
                     className={`text-xl mb-4 ${currentBudget < parseFloat(balanceThreshold) ? 'text-red-500' : 'text-gray-800'} dark:text-white`}
                 >
