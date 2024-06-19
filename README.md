@@ -1,8 +1,9 @@
-# Transaction Tracker App
+# Spending Tracker App
 
 This is a simple React application for tracking financial transactions. It allows you to record revenue and expenses, view transaction history, and export transactions in CSV format.
 
-![image](https://github.com/NabilKhattab37/transaction-tracker/assets/138429293/5e1d1458-7f6f-40c0-b051-986d920e6ccc)
+![image](https://github.com/NabilKhattab37/transaction-tracker/assets/138429293/b2ce617b-4cfa-49b1-be62-55bc8835d12c)
+
 
 
 
