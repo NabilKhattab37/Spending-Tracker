@@ -7,6 +7,7 @@ import Select from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
 import Papa from 'papaparse';
+import axios from 'axios';
 
 function TransactionHistory({transactions, onDeleteTransaction}) {
     const [sortOrder, setSortOrder] = useState('desc');
@@ -88,10 +89,10 @@ function TransactionHistory({transactions, onDeleteTransaction}) {
                     </FormControl>
                 </div>
             </div>
-            <div className="max-h-[50vh] overflow-y-scroll scroll-smooth pe-4"  style={{ scrollbarWidth: 'thin' }}>
+            <div className="max-h-[50vh] overflow-y-scroll scroll-smooth pe-4" style={{ scrollbarWidth: 'thin' }}>
                 <ul className="list-disc mt-4">
                     {sortedTransactions.map((transaction, index) => (
-                        <li key={index} className="mb-4 p-4 border rounded-lg flex justify-between items-center">
+                        <li key={transaction.id || index} className="mb-4 p-4 border rounded-lg flex justify-between items-center">
                             <div>
                                 <p className="text-lg font-semibold">Name: {transaction.name}</p>
                                 <p className="text-gray-500">Category: {transaction.category}</p>
@@ -109,7 +110,14 @@ function TransactionHistory({transactions, onDeleteTransaction}) {
                                     <Button
                                         variant="outlined"
                                         size="small"
-                                        onClick={() => onDeleteTransaction(transactions.indexOf(transaction))}
+                                        onClick={() => {
+                                            // FIXED: Find the original index in the full transactions array
+                                            const originalIndex = transactions.findIndex(t => 
+                                                t.id ? t.id === transaction.id : 
+                                                t.name === transaction.name && t.date === transaction.date && t.value === transaction.value
+                                            );
+                                            onDeleteTransaction(originalIndex);
+                                        }}
                                         className="ml-2 border rounded-md"
                                     >
                                         Delete
@@ -142,24 +150,45 @@ function Ttracker() {
         name: '',
     });
 
-
-
     const [revenue, setRevenue] = useState(0);
     const [expenses, setExpenses] = useState(0);
-
     const [transactions, setTransactions] = useState([]);
+    const [loading, setLoading] = useState(true);
+
+    // FIXED: Added missing balanceThreshold state
+    const [showAlert, setShowAlert] = useState(false);
+    const initialBalanceThreshold = typeof localStorage !== 'undefined' ? localStorage.getItem('balanceThreshold') || '0' : '0';
+    const [balanceThreshold, setBalanceThreshold] = useState(initialBalanceThreshold);
+
+    const [open, setOpen] = React.useState(false);
+    const handleOpen = () => setOpen(true);
+    const handleClose = () => setOpen(false);
 
     useEffect(() => {
-        // Check if localStorage is available (in a browser context)
-        if (typeof window !== 'undefined') {
-            // Retrieve transaction data from localStorage
-            const localStorageData = localStorage.getItem('transactions');
-            const parsedData = localStorageData ? JSON.parse(localStorageData) : [];
-            setTransactions(parsedData);
-        }
-    }, []); // Run this effect once when the component mounts
+        const fetchTransactions = async () => {
+            try {
+                setLoading(true);
+                const response = await axios.get('/api/transactions');
+                setTransactions(response.data);
+                console.log('Loaded transactions from database:', response.data);
+            } catch (error) {
+                console.error('Error fetching transactions:', error);
+                // Fallback to localStorage if API fails
+                if (typeof window !== 'undefined') {
+                    const localStorageData = localStorage.getItem('transactions');
+                    const parsedData = localStorageData ? JSON.parse(localStorageData) : [];
+                    setTransactions(parsedData);
+                    console.log('Fallback: Loaded transactions from localStorage');
+                }
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchTransactions();
+    }, []);
+
     useEffect(() => {
-        // Calculate initial revenue and expenses from stored transactions in localStorage
         const initialRevenue = transactions
             .filter(transaction => transaction.type === 'Revenue')
             .reduce((total, transaction) => total + parseFloat(transaction.value), 0);
@@ -170,16 +199,26 @@ function Ttracker() {
         setRevenue(initialRevenue);
         setExpenses(initialExpenses);
 
-        // Calculate the initial current budget based on the budget value
         const initialCurrentBudget = parseFloat(localBudget) - initialExpenses + initialRevenue;
         setCurrentBudget(initialCurrentBudget.toFixed(2));
     }, [localBudget, transactions]);
 
     useEffect(() => {
-        // Update the current budget whenever revenue or expenses change
         const updatedCurrentBudget = parseFloat(localBudget) - expenses + revenue;
         setCurrentBudget(updatedCurrentBudget.toFixed(2));
     }, [localBudget, expenses, revenue]);
+
+    useEffect(() => {
+        if (typeof localStorage !== 'undefined') {
+            const threshold = parseFloat(balanceThreshold);
+            if (currentBudget < threshold) {
+                setShowAlert(true);
+            } else {
+                setShowAlert(false);
+            }
+            localStorage.setItem('balanceThreshold', balanceThreshold);
+        }
+    }, [currentBudget, balanceThreshold]);
 
     const handleBudgetSubmit = (event) => {
         event.preventDefault();
@@ -187,89 +226,98 @@ function Ttracker() {
         if (!isNaN(newLocalBudget)) {
             localStorage.setItem('budget', newLocalBudget.toString());
             setLocalBudget(newLocalBudget);
-        } else {
-            // Handle invalid input
         }
     };
 
-    const handleClearTransactions = () => {
-        // Clear transactions in localStorage
-        localStorage.removeItem('transactions');
+    const handleClearTransactions = async () => {
+        try {
+            for (const transaction of transactions) {
+                if (transaction.id) {
+                    await axios.delete(`/api/transactions/${transaction.id}`);
+                }
+            }
+            
+            localStorage.removeItem('transactions');
 
-        // Reset revenue and expenses to zero
-        setRevenue(0);
-        setExpenses(0);
-        setBalanceThreshold(0);
-
-        // Reset localBudget to zero
-        setLocalBudget(0);
-
-        // Calculate the updated current budget
-        const updatedCurrentBudget = 0;
-        setCurrentBudget(updatedCurrentBudget.toFixed(2));
-
-        // Update the displayed budget
-        setDisplayedBudget(updatedCurrentBudget.toFixed(2));
-
-        // Clear the transaction history by setting an empty array
-        setTransactions([]);
-
-        // Close the modal if it's open
-        setOpen(false);
+            setRevenue(0);
+            setExpenses(0);
+            setBalanceThreshold('0'); // FIXED: Use string value
+            setLocalBudget(0);
+            setCurrentBudget('0.00');
+            setDisplayedBudget('0.00');
+            setTransactions([]);
+            setOpen(false);
+            
+            console.log('All transactions cleared from database');
+        } catch (error) {
+            console.error('Error clearing transactions:', error);
+            localStorage.removeItem('transactions');
+            setTransactions([]);
+        }
     };
-
 
     const handleTransactionRecording = (type) => {
         setTransactionType(type);
         setRecordingTransaction(true);
-
     };
 
-    const handleRecordTransaction = (details) => {
-        // Parse the value as a float
+    const handleRecordTransaction = async (details) => {
         const floatValue = parseFloat(details.value);
 
         if (!isNaN(floatValue)) {
-            let updatedBudget = parseFloat(displayedBudget);
+            try {
+                const response = await axios.post('/api/transactions', {
+                    ...details,
+                    type: transactionType,
+                    value: floatValue
+                });
 
-            if (transactionType === 'Revenue') {
-                const addedRevenue = floatValue;
-                setRevenue(revenue + addedRevenue);
-                updatedBudget += addedRevenue;
-            } else if (transactionType === 'Expense') {
-                const addedExpense = floatValue;
-                setExpenses(expenses + addedExpense);
-                updatedBudget -= addedExpense;
+                console.log('Transaction saved to database:', response.data);
+
+                const newTransaction = response.data;
+                const updatedTransactions = [...transactions, newTransaction];
+                setTransactions(updatedTransactions);
+
+                let updatedBudget = parseFloat(displayedBudget);
+
+                if (transactionType === 'Revenue') {
+                    const addedRevenue = floatValue;
+                    setRevenue(revenue + addedRevenue);
+                    updatedBudget += addedRevenue;
+                } else if (transactionType === 'Expense') {
+                    const addedExpense = floatValue;
+                    setExpenses(expenses + addedExpense);
+                    updatedBudget -= addedExpense;
+                }
+
+                localStorage.setItem('transactions', JSON.stringify(updatedTransactions));
+
+                setTransactionDetails({
+                    value: '',
+                    category: '',
+                    date: '',
+                    name: '',
+                });
+
+                setRecordingTransaction(false);
+                setTransactionType('');
+                setDisplayedBudget(updatedBudget.toFixed(2));
+
+                const updatedCurrentBudget = updatedBudget - expenses + revenue;
+                setCurrentBudget(updatedCurrentBudget.toFixed(2));
+
+                window.dispatchEvent(new Event('budgetUpdated'));
+
+            } catch (error) {
+                console.error('Error saving transaction to database:', error);
+                
+                const fallbackTransaction = {...details, type: transactionType, id: Date.now()};
+                const updatedTransactions = [...transactions, fallbackTransaction];
+                localStorage.setItem('transactions', JSON.stringify(updatedTransactions));
+                setTransactions(updatedTransactions);
+                
+                alert('Failed to save to database, saved locally instead.');
             }
-
-            // Store the transaction in localStorage
-            const updatedTransactions = [...transactions, {...details, type: transactionType}];
-            localStorage.setItem('transactions', JSON.stringify(updatedTransactions));
-
-            // Clear the transaction details
-            setTransactionDetails({
-                value: '',
-                category: '',
-                date: '', // Reset date to null
-                name: '',
-            });
-
-            setRecordingTransaction(false); // Clear the recording state
-            setTransactions(updatedTransactions);
-            setTransactionType('');
-
-            // Update the displayed budget immediately
-            setDisplayedBudget(updatedBudget.toFixed(2));
-
-            // Update the current budget with the new budget value
-            const updatedCurrentBudget = updatedBudget - expenses + revenue;
-            setCurrentBudget(updatedCurrentBudget.toFixed(2));
-
-            // Dispatch an event to notify other components of the budget update
-            window.dispatchEvent(new Event('budgetUpdated'));
-        } else {
-            // Handle invalid input (e.g., non-numeric input for transaction value)
-            // You can display an error message or take appropriate action here
         }
     };
 
@@ -283,15 +331,11 @@ function Ttracker() {
                 reader.onload = (e) => {
                     const fileContent = e.target.result;
 
-                    // Parse the CSV data using PapaParse
                     Papa.parse(fileContent, {
-                        header: true, // Assumes the first row contains headers
-                        dynamicTyping: true, // Automatically convert numeric values
+                        header: true,
+                        dynamicTyping: true,
                         complete: (results) => {
-                            // Extract the parsed data from the results object
                             const parsedData = results.data;
-
-                            // Update the transactions state with the parsed data
                             setTransactions(parsedData);
                         },
                         error: (error) => {
@@ -303,7 +347,6 @@ function Ttracker() {
                 reader.readAsText(file);
             }
         } else if (action === 'download') {
-            // Convert the transaction history to CSV format
             const csvData = transactions.map((transaction) => ({
                 Name: transaction.name,
                 Category: transaction.category,
@@ -312,59 +355,55 @@ function Ttracker() {
                 Value: transaction.value,
             }));
 
-            // Convert the data to CSV format using papaparse
             const csvContent = Papa.unparse(csvData);
-
-            // Create a Blob with the CSV data
             const blob = new Blob([csvContent], {type: 'text/csv'});
-
-            // Create a temporary URL to the Blob
             const url = window.URL.createObjectURL(blob);
 
-            // Create a temporary anchor element for the download
             const a = document.createElement('a');
             a.href = url;
             a.download = 'transaction_history.csv';
-
-            // Trigger the click event on the anchor element to start the download
             a.click();
 
-            // Clean up by revoking the URL and removing the anchor element
             window.URL.revokeObjectURL(url);
             a.remove();
         }
     };
 
+    const handleDeleteTransaction = async (indexToDelete) => {
+        const transactionToDelete = transactions[indexToDelete];
+        
+        try {
+            if (transactionToDelete.id) {
+                await axios.delete(`/api/transactions/${transactionToDelete.id}`);
+                console.log('Transaction deleted from database');
+            }
 
-    const handleDeleteTransaction = (indexToDelete) => {
-        // Remove the transaction at the specified index
-        const updatedTransactions = [...transactions];
-        updatedTransactions.splice(indexToDelete, 1);
-        setTransactions(updatedTransactions);
+            const updatedTransactions = [...transactions];
+            updatedTransactions.splice(indexToDelete, 1);
+            setTransactions(updatedTransactions);
 
-        // Update revenue and expenses based on the updated transactions
-        const updatedRevenue = updatedTransactions
-            .filter((transaction) => transaction.type === 'Revenue')
-            .reduce((total, transaction) => total + parseFloat(transaction.value), 0);
+            const updatedRevenue = updatedTransactions
+                .filter((transaction) => transaction.type === 'Revenue')
+                .reduce((total, transaction) => total + parseFloat(transaction.value), 0);
 
-        const updatedExpenses = updatedTransactions
-            .filter((transaction) => transaction.type === 'Expense')
-            .reduce((total, transaction) => total + parseFloat(transaction.value), 0);
+            const updatedExpenses = updatedTransactions
+                .filter((transaction) => transaction.type === 'Expense')
+                .reduce((total, transaction) => total + parseFloat(transaction.value), 0);
 
-        setRevenue(updatedRevenue);
-        setExpenses(updatedExpenses);
+            setRevenue(updatedRevenue);
+            setExpenses(updatedExpenses);
 
-        // Update the current budget with the new values
-        const updatedCurrentBudget = parseFloat(localBudget) - updatedExpenses + updatedRevenue;
-        setCurrentBudget(updatedCurrentBudget.toFixed(2));
+            const updatedCurrentBudget = parseFloat(localBudget) - updatedExpenses + updatedRevenue;
+            setCurrentBudget(updatedCurrentBudget.toFixed(2));
 
-        // Update local storage with the updated transactions
-        localStorage.setItem('transactions', JSON.stringify(updatedTransactions));
+            localStorage.setItem('transactions', JSON.stringify(updatedTransactions));
+
+        } catch (error) {
+            console.error('Error deleting transaction:', error);
+            alert('Failed to delete from database, but removed locally.');
+        }
     };
 
-    const [open, setOpen] = React.useState(false);
-    const handleOpen = () => setOpen(true);
-    const handleClose = () => setOpen(false);
     const style = {
         position: 'absolute',
         top: '50%',
@@ -374,22 +413,13 @@ function Ttracker() {
         p: 4,
     };
 
-    const [showAlert, setShowAlert] = useState(false);
-    const initialBalanceThreshold = typeof localStorage !== 'undefined' ? localStorage.getItem('balanceThreshold') || '0' : '0';
-    const [balanceThreshold, setBalanceThreshold] = useState(initialBalanceThreshold);
-
-    useEffect(() => {
-        if (typeof localStorage !== 'undefined') {
-            const threshold = parseFloat(balanceThreshold);
-            if (currentBudget < threshold) {
-                setShowAlert(true);
-            } else {
-                setShowAlert(false);
-            }
-            // Save to localStorage
-            localStorage.setItem('balanceThreshold', balanceThreshold);
-        }
-    }, [currentBudget, balanceThreshold]);
+    if (loading) {
+        return (
+            <div className="flex justify-center items-center h-64">
+                <div className="text-xl">Loading transactions...</div>
+            </div>
+        );
+    }
 
     return (
         <div>
@@ -406,12 +436,12 @@ function Ttracker() {
                 >
                     Balance Threshold:
                     <input
-                    type="number"
-                    value={balanceThreshold}
-                    onChange={(e) => setBalanceThreshold(parseInt(e.target.value))}
-                    className="border ms-2 w-auto border-gray-300 dark:bg-gray-700 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 rounded-md p-3 mb-4"
-                    placeholder="Enter balance threshold"
-                />
+                        type="number"
+                        value={balanceThreshold}
+                        onChange={(e) => setBalanceThreshold(e.target.value)}
+                        className="border ms-2 w-auto border-gray-300 dark:bg-gray-700 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 rounded-md p-3 mb-4"
+                        placeholder="Enter balance threshold"
+                    />
                 </h2>
                 <h2 className="text-xl mb-4 text-gray-800 dark:text-white">Current Balance: ${currentBudget}</h2>
                 <form onSubmit={handleBudgetSubmit} className="justify-center items-center flex">
